@@ -32,7 +32,7 @@ namespace PatternSlidingWindow
             (int countedUpSum, int lastTakenIndex) = CoutSubarraySum(lastCountedSum, input, lastCountedIndex, givenSum);
 
             int currentSum = countedUpSum;
-            int currentSumLength = lastTakenIndex; //because start index = 0
+            int currentSumLength = lastTakenIndex + 1; //because start index = 0
             output = currentSumLength;
             lastCountedIndex = lastTakenIndex; // new start index will be the last taken index in CoutSubarraySum method
 
@@ -41,13 +41,15 @@ namespace PatternSlidingWindow
                 // move the left side of the sliding window on one step and decrement sum lehgth
                 currentSum -= input[i];
                 currentSumLength--;
-                Console.WriteLine($"move the left side of the sliding window - subtract input[{i}] {input[i]}, now currentSum is {currentSum}");
+                Console.WriteLine($"move the left side of the sliding window - subtract input[{i}] {input[i]}, now currentSum is {currentSum} and its length = {currentSumLength}");
 
                 if (currentSum < givenSum)
                 {
                     Console.WriteLine($"currentSum {currentSum} < givenSum {givenSum}, CoutSubarraySum will be called with lastCountedIndex = {lastCountedIndex}");
 
                     (countedUpSum, lastTakenIndex) = CoutSubarraySum(currentSum, input, lastCountedIndex, givenSum);
+
+                    Console.WriteLine($"!!! where is it ???");
 
                     // need to check if new sum was found
                     if (countedUpSum < 0)
@@ -62,13 +64,14 @@ namespace PatternSlidingWindow
                     currentSumLength += lastTakenIndex - lastCountedIndex;
                     Console.WriteLine($"new currentSum is {currentSum} and the new its lenght is {currentSumLength}");
 
-                    // compare new sum length with minimal saved and upgrade if needed
-                    if (output < currentSumLength)
-                    {
-                        Console.WriteLine($"compare new sum length {currentSumLength} with minimal saved {output} and upgrade it");
-                        output = currentSumLength;
-                    }
                     lastCountedIndex = lastTakenIndex;
+
+                }
+                // compare new sum length with minimal saved and upgrade if needed
+                if (currentSumLength < output)
+                {
+                    Console.WriteLine($"compare new sum length {currentSumLength} with minimal saved {output} and upgrade it");
+                    output = currentSumLength;
                 }
                 // if sum still more then given one, do new cycle loop (and subtract next element from left side)
             }
@@ -91,7 +94,7 @@ namespace PatternSlidingWindow
 
                 if (sum >= givenSum)
                 {
-                    Console.WriteLine($"counted up sum {sum} >= givenSum {givenSum} and will be returned with last used index {j}");
+                    Console.WriteLine($"method CoutSubarraySum counted up sum {sum} >= givenSum {givenSum} and will be returned with last used index {j}");
                     return (sum, j);
                 }
             }
