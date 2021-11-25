@@ -8,10 +8,22 @@ namespace PatternSlidingWindow
 {
     public static class SmallestSubarrayWithAGivenSum
     {
-        public static int FindSmallestSubarrayWithWhile(int[] input, int givenSum)
+        public static void MainSmallestSubarray()
         {
+            Console.WriteLine("Class - Smallest Subarray with a given sum");
+
+            int[] input = new int[] { 2, 1, 5, 2, 3, 2 };
+            int givenSum = 7;
             PrintArrayInLine(input, givenSum);
 
+            int output = SmallestSubarrayWithAGivenSum.FindSmallestSubarrayWithWhile(input, givenSum);
+            //int output = SmallestSubarrayWithAGivenSum.FindSmallestSubarray(input, givenSum);
+
+            Console.WriteLine($"Smallest Subarray with a given sum {givenSum} is {output}");
+        }
+
+        public static int FindSmallestSubarrayWithWhile(int[] input, int givenSum)
+        {
             int countedUpSum = 0;
             int minSumLength = int.MaxValue;            
             int leftFrameSide = 0;
@@ -56,9 +68,6 @@ namespace PatternSlidingWindow
 
         public static int FindSmallestSubarray(int[] input, int givenSum)
         {
-            PrintArrayInLine(input, givenSum);
-
-            //int foundSmallestSubarrayLength = -1; //temp name is output
             int output = -1;
 
             // check if input[0] >= givenSum            
