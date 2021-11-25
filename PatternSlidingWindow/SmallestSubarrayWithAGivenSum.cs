@@ -8,6 +8,36 @@ namespace PatternSlidingWindow
 {
     public static class SmallestSubarrayWithAGivenSum
     {
+        public static int FindSmallestSubarrayWithWhile(int[] input, int givenSum)
+        {
+            //int foundSmallestSubarrayLength = int.MaxValue;
+            int countedUpSum = 0;
+            int minSumLength = int.MaxValue;
+            int sumLength = 0;
+            int leftFrameSide = 0;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                countedUpSum += input[i];
+                Console.WriteLine($"cycle step {i} - countedUpSum = {countedUpSum}, sumLength = {sumLength}");
+
+                while (countedUpSum >= givenSum)
+                {
+                    if (i - leftFrameSide +1 < minSumLength)
+                    {
+                        Console.WriteLine($"foundSmallestSubarrayLength was updated {minSumLength} - with new sumLength = {i - leftFrameSide}");
+                        minSumLength = i - leftFrameSide +1;
+                    }
+                    countedUpSum -= input[leftFrameSide];
+                    leftFrameSide++;                    
+                    Console.WriteLine($"while step {leftFrameSide} - countedUpSum = {countedUpSum}");
+
+                }
+            }
+
+            return minSumLength;
+        }
+
         public static int FindSmallestSubarray(int[] input, int givenSum)
         {
             // need to limit the length of the printed array
@@ -15,7 +45,7 @@ namespace PatternSlidingWindow
             Console.WriteLine($"Array input is {joinInputArray}");
             Console.WriteLine($"Given sum is {givenSum}");
 
-            int foundSmallestSubarrayLength = -1; //temp name is output
+            //int foundSmallestSubarrayLength = -1; //temp name is output
             int output = -1;
 
             // check if input[0] >= givenSum            

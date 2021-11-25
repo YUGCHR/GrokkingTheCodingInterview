@@ -13,7 +13,8 @@ namespace PatternSlidingWindow
 
             int[] input = new int[] { 2, 1, 5, 2, 3, 2 };
             int givenSum = 7;
-            int output = SmallestSubarrayWithAGivenSum.FindSmallestSubarray(input, givenSum);
+            int output = SmallestSubarrayWithAGivenSum.FindSmallestSubarrayWithWhile(input, givenSum);
+            //int output = SmallestSubarrayWithAGivenSum.FindSmallestSubarray(input, givenSum);
             
             Console.WriteLine($"Smallest Subarray with a given sum {givenSum} is {output}");
 
