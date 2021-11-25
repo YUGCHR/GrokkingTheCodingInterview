@@ -10,7 +10,9 @@ namespace PatternSlidingWindow
             Console.WriteLine("Project - Pattern: Sliding Window\n");
 
 
-            SmallestSubarrayWithAGivenSum.MainSmallestSubarray();
+            //SmallestSubarrayWithAGivenSum.MainSmallestSubarray();
+
+            LongestSubstringWithMaximumKDistinctCharacters.MainLongestSubstring();
 
 
         }
