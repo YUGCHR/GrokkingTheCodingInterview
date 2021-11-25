@@ -10,40 +10,53 @@ namespace PatternSlidingWindow
     {
         public static int FindSmallestSubarrayWithWhile(int[] input, int givenSum)
         {
-            //int foundSmallestSubarrayLength = int.MaxValue;
+            PrintArrayInLine(input, givenSum);
+
             int countedUpSum = 0;
-            int minSumLength = int.MaxValue;
-            int sumLength = 0;
+            int minSumLength = int.MaxValue;            
             int leftFrameSide = 0;
 
             for (int i = 0; i < input.Length; i++)
             {
                 countedUpSum += input[i];
-                Console.WriteLine($"cycle step {i} - countedUpSum = {countedUpSum}, sumLength = {sumLength}");
+                Console.WriteLine($"cycle step {i} - countedUpSum = {countedUpSum}");
 
                 while (countedUpSum >= givenSum)
                 {
-                    if (i - leftFrameSide +1 < minSumLength)
+                    if (i - leftFrameSide + 1 < minSumLength)
                     {
-                        Console.WriteLine($"foundSmallestSubarrayLength was updated {minSumLength} - with new sumLength = {i - leftFrameSide}");
-                        minSumLength = i - leftFrameSide +1;
+                        Console.WriteLine($"minSumLength was updated {minSumLength} - with new sumLength = {i - leftFrameSide + 1}");
+                        minSumLength = i - leftFrameSide + 1;
                     }
-                    countedUpSum -= input[leftFrameSide];
-                    leftFrameSide++;                    
-                    Console.WriteLine($"while step {leftFrameSide} - countedUpSum = {countedUpSum}");
 
+                    countedUpSum -= input[leftFrameSide];
+                    leftFrameSide++;
+                    Console.WriteLine($"while step {leftFrameSide} - countedUpSum = {countedUpSum}");
                 }
             }
 
-            return minSumLength;
+            Console.WriteLine($"minSumLength was found {minSumLength}");
+            return minSumLength == int.MaxValue ? 0 : minSumLength;
+        }
+
+        public static void PrintArrayInLine(int[] input, int givenSum)
+        {
+            if (input.Length < 100)
+            {
+                // need to limit the length of the printed array
+                string joinInputArray = String.Join(", ", input);
+                Console.WriteLine($"Array input is {joinInputArray}");
+                Console.WriteLine($"Given sum is {givenSum}");
+            }
+            else
+            {
+                Console.WriteLine($"Array input is to big to print, length = {input.Length}");
+            }
         }
 
         public static int FindSmallestSubarray(int[] input, int givenSum)
         {
-            // need to limit the length of the printed array
-            string joinInputArray = String.Join(", ", input);
-            Console.WriteLine($"Array input is {joinInputArray}");
-            Console.WriteLine($"Given sum is {givenSum}");
+            PrintArrayInLine(input, givenSum);
 
             //int foundSmallestSubarrayLength = -1; //temp name is output
             int output = -1;
