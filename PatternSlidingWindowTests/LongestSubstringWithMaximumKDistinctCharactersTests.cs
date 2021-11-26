@@ -16,6 +16,7 @@ namespace PatternSlidingWindow.Tests
         [DataRow("araaci", 1, 2)]
         [DataRow("cbbebi", 3, 5)]
         [DataRow("cbbebi", 10, 6)]
+        [DataRow("caaarrraaarrraaaciiiiiiiiiiiiiiiiiiirrr", 3, 23)]
 
         public void FindLongestSubstringTest(string input, int k, int expectedLongestSubstringLength)
         {

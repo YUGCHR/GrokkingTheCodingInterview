@@ -48,11 +48,9 @@ namespace PatternSlidingWindow
                 return input.Length;
             }
 
-            // завести словарь, где ключ - символ, значение - индекс
             // define Dictionary, where Key is char from input string and Value - its latest found index
             Dictionary<char, int> countDistinctCharacters = new();
 
-            // можно индекс назвать rightFrameSide, а можно просто i
             int leftFrameSide = 0;
             int foundLongestSubstring = 0;
             bool isListFull = false; // Dictionary is emplty (or not full)
@@ -62,24 +60,22 @@ namespace PatternSlidingWindow
                 char indexChar = input[i];
                 Console.WriteLine($"- {i} - loop of cycle, indexChar is {indexChar}, leftFrameSide = {leftFrameSide}, the longest substring length = {foundLongestSubstring}, dictionary is full = {isListFull}");
 
-                // в цикле по строке достать символ, проверить, есть ли в словаре
+                // in a loop through the string, get the character, check if it is in the dictionary already
                 if (countDistinctCharacters.ContainsKey(indexChar))
                 {
-                    // если есть, записать значение нового индекса
+                    // if the char already exists, set new index value for it
                     Console.WriteLine($"Yes, artist IS at home today, for char {indexChar} new index {i} will be set in dictionary");
 
                     countDistinctCharacters[indexChar] = i;
                 }
-                // если такого символа в словаре нет, надо его добавить, а если нет места, сначала удалить самый ранний символ
+                // if there is no such symbol in the dictionary, add it, and if there is no place, first remove the farest symbol
                 else
                 {
-                    // если нет, посмотреть на размер словаря (хранить в отдельной переменной?)
-                    // можно размер хранить в bool - isListFull
                     Console.WriteLine($"New char {indexChar} with index {i} will be added in dictionary, which is full {isListFull}");
 
                     if (isListFull)
                     {
-                        // если полный, найти минимальный индекс (как?), его ключ удалить
+                        // if the dictionary is full, find the min index (Value) and remove Key for this Value
                         // c# find key with min value in dictionary
                         // https://stackoverflow.com/questions/23734686/c-sharp-dictionary-get-the-key-of-the-min-value
                         // https://stackoverflow.com/questions/2805703/good-way-to-get-the-key-of-the-highest-value-of-a-dictionary-in-c-sharp
@@ -93,29 +89,31 @@ namespace PatternSlidingWindow
                         Console.WriteLine($"dictionary is full {isListFull}, the farest char {minChar} was found with index {minValue} and will be removed from");
 
                         // определить, сравнить и, если надо, зафиксировать размер цепочки
-                        // измерить размер окна - текущий индекс минус leftFrameSide
+                        // calculate the frame size - it will be equal to subtract leftFrameSide from current index
                         int thisChainLength = i - leftFrameSide;
                         Console.WriteLine($"new substring length {thisChainLength} was defined and will be compared with max found length {foundLongestSubstring}");
 
-                        // сравнить его с максимальным foundLongestSubstring
+                        // compare this frame size with max value stored in foundLongestSubstring
                         if (thisChainLength > foundLongestSubstring)
                         {
-                            // если больше, сохранить в него, иначе забыть
+                            // if more, save into it, otherwise disregard
                             foundLongestSubstring = thisChainLength;
                             Console.WriteLine($"new max found length {foundLongestSubstring} was set");
 
                         }
 
                         // удаляем кандидата на выбывание - самый последний встреченный символ
+                        // remove the elimination candidate - the most recently encountered character
                         countDistinctCharacters.Remove(minChar);
                         //isListFull = false;
                         Console.WriteLine($"dictionary is full {isListFull}, the farest char {minChar} was found with index {minValue} and will be removed from");
 
-                        // опять найти минимальный индекс в словаре и записать его в leftFrameSide
+                        // set index of the removed Key plus 1 in leftFrameSide - this will be the new frame start index
                         // записать новый индекс в переменную leftFrameSide - (minValue + 1) будет новым началом окна
                         leftFrameSide = minValue + 1;
 
                         // словарь не полный, добавить в него новый символ 
+                        // dictionary is not full now and can add new char in it
                     }
                     //else // - else убрать, словарь всегда будет неполный, даже если был полный
                     // если влазит, добавить в словарь
