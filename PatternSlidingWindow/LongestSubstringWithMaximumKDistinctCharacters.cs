@@ -43,7 +43,13 @@ namespace PatternSlidingWindow
 
         public static int FindLongestSubstring(string input, int k)
         {
+            if (k >= input.Length)
+            {
+                return input.Length;
+            }
+
             // завести словарь, где ключ - символ, значение - индекс
+            // define Dictionary, where Key is char from input string and Value - its latest found index
             Dictionary<char, int> countDistinctCharacters = new();
 
             // можно индекс назвать rightFrameSide, а можно просто i
