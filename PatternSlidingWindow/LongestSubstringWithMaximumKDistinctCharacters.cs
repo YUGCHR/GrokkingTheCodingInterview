@@ -32,7 +32,7 @@ namespace PatternSlidingWindow
                 Console.Write($"{blank0}{i},");
             }
             Console.WriteLine("\n-------------------------------------------------------------------------------------------------------------------------");
-                        
+
             Console.WriteLine($"String input is {input}");
             Console.WriteLine($"Necessary K Distinct Characters is {k}");
 
@@ -43,8 +43,15 @@ namespace PatternSlidingWindow
 
         public static int FindLongestSubstring(string input, int k)
         {
+            if (input == null || input.Length == 0)
+            {
+                Console.WriteLine($"String <<input>> is not defined or its length = 0, cannot use this data");
+                return -1;
+            }
+
             if (k >= input.Length)
             {
+                Console.WriteLine($"Condition << K = {k} >> is more then string length, so the << string length = {input.Length} >> will be solution in this case");
                 return input.Length;
             }
 
