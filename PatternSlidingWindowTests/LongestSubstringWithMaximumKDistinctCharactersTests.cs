@@ -24,5 +24,19 @@ namespace PatternSlidingWindow.Tests
 
             Assert.AreEqual(expectedLongestSubstringLength, foundLongestSubstring);
         }
+        
+        [TestMethod()]
+        [DataRow("araaci", 2, 4)]
+        [DataRow("araaci", 1, 2)]
+        [DataRow("cbbebi", 3, 5)]
+        [DataRow("cbbebi", 10, 6)]
+        [DataRow("caaarrraaarrraaaciiiiiiiiiiiiiiiiiiirrr", 3, 23)]
+
+        public void FindLongestSubstringOriginalTest(string input, int k, int expectedLongestSubstringLength)
+        {
+            int foundLongestSubstring = LongestSubstringWithMaximumKDistinctCharacters.FindLongestSubstringOriginal(input, k);
+
+            Assert.AreEqual(expectedLongestSubstringLength, foundLongestSubstring);
+        }
     }
 }
