@@ -13,8 +13,8 @@ namespace PatternSlidingWindow
             Console.WriteLine("Class - Longest substring with maximum K distinct characters");
 
             string input = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiiirrr";
-            // caaarrraaa r r r a a a c i i i i iiiiiiiiiiiiiiirrr;
-            // 01234567891011121314151617181920;
+            // caaarrraaa r r r a a a c i i i i i iiiiiiiiiiiiiirrr;
+            // 0123456789101112131415161718192021;
             int k = 3;
             string blank0 = "  ";
 
