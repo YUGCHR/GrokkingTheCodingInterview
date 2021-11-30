@@ -12,9 +12,9 @@ namespace PatternSlidingWindow
 
             //SmallestSubarrayWithAGivenSum.MainSmallestSubarray();
 
-            LongestSubstringWithMaximumKDistinctCharacters.MainLongestSubstring();
+            //LongestSubstringWithMaximumKDistinctCharacters.MainLongestSubstring();
 
-            //LongestSubstringWithDistinctCharacters.MainLongestDistinctSubstring();
+            LongestSubstringWithDistinctCharacters.MainLongestDistinctSubstring();
         }
     }
 }

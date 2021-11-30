@@ -12,10 +12,12 @@ namespace PatternSlidingWindow
         {
             Console.WriteLine("Class - Longest Substring with Distinct Characters");
 
-            string input = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiiirrr";
-            // caaarrraaa r r r a a a c i i i i i iiiiiiiiiiiiiirrr;
-            // 0123456789101112131415161718192021;
+            //string input = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiiirarcr";
+            // caaarrraaa r r r a a a c i i i i i iiiiiiiiiiiii  i  r  a  r  c  r;
+            // 0123456789101112131415161718192021               35 36 37 38 39 40;
             
+            string input = "caraarcrraccaariirraaacimibiibbirriiaaiicciiiciairibidiiirarcr";
+
             string blank0 = "  ";
 
             for (int i = 0; i < input.Length; i++)
@@ -40,107 +42,89 @@ namespace PatternSlidingWindow
             Console.WriteLine($"the length of the longest substring in input string with all distinct characters is {output}");
         }
 
-
         public static int FindLongestDistinctSubstring(string input) // 27 lines
         {
-            int k = 3;
+            int stepCounter = 0;
+            int maxLength = 0;
+
             if (input == null || input.Length == 0)
             {
                 Console.WriteLine($"String <<input>> is not defined or its length = 0, cannot use this data");
-                return -1;
+                return 0;
             }
 
             // define Dictionary, where Key is char from input string and Value - its latest found index
             Dictionary<char, int> countDistinctCharacters = new();
 
-            int leftFrameSide = 0;
-            int foundLongestSubstring = 0;
-            bool isListFull = false; // Dictionary is emplty (or not full)
+            int index = 0;
+            string maxSubString = "";
 
-            for (int i = 0; i < input.Length; i++)
+            while (index < input.Length)
             {
-                char indexChar = input[i];
-                Console.WriteLine($"- {i} - loop of cycle, indexChar is {indexChar}, leftFrameSide = {leftFrameSide}, the longest substring length = {foundLongestSubstring}, dictionary is full = {isListFull}");
+                char indexChar = input[index];
+
+                Console.WriteLine($"<<<CYCLE START>>> - {index} loop of cycle, indexChar is {indexChar}");
+
+                // провеяем, если такой символ есть, просто? удаляем его из словаря, если нет - заносим
+                // не просто - а удаляем из словаря все символы, индекс которых меньше этого, который встретился повторно
+                // при этом словарь надо слить в массив/строку - в этот момент удобно искать нужные индексы
+                // а в самом символе, который встретился, меняем индекс на новый
+                // или удаляем всех (наверху разберутся, кто свой), и записываем новый символ
 
                 // in a loop through the string, get the character, check if it is in the dictionary already
                 if (countDistinctCharacters.ContainsKey(indexChar))
                 {
-                    // if the char already exists, set new index value for it
-                    Console.WriteLine($"Yes, artist IS at home today, for char {indexChar} new index {i} will be set in dictionary");
+                    //                           " c   a   r   a" - пока цепочка длится, индексы всегда идут подряд, это надо как-то использовать
+                    // скажем, индексы могут быть 11, 12, 13, 14
+                    // сейчас надо удалить все, раньше индекса a - включая его или нет, без разницы
+                    // скажем, во второй словарь заносим индексы в качестве ключа, а значением - символы
+                    // тогда спрашиваем в первом словаре индекс повторного символа, во втором словаре проверяем, если ли индексы меньше его, удаляем их и из первого словаря эти же символы
+                    // символ встретился повторно, цепочка оборвалась, надо измерить ее длину и если макс, то сохранить подстроку
+                    // в этот момент в словаре вся нужная цепочка "car", проверяем длину и, если надо, сохраняем
 
-                    countDistinctCharacters[indexChar] = i;
-                }
-                // if there is no such symbol in the dictionary, add it, and if there is no place, first remove the farest symbol
-                else
-                {
-                    Console.WriteLine($"New char {indexChar} with index {i} will be added in dictionary, which is full {isListFull}");
+                    // maxLength = Math.Max(maxLength, countDistinctCharacters.Count); - отличная функция, но еще надо знать, что было обновление
+                    // compare this frame size with max value stored in foundLongestSubstring
+                    int countDistinctCharactersCount = countDistinctCharacters.Count;
+                    Console.WriteLine($"Yes, char {indexChar} already exists in dictionary, DICTIONARY length = {countDistinctCharactersCount}, MAX length = {maxLength}");
 
-                    if (isListFull)
+                    if (countDistinctCharactersCount > maxLength)
                     {
-                        // if the dictionary is full, find the min index (Value) and remove Key for this Value
-                        // c# find key with min value in dictionary
-                        // https://stackoverflow.com/questions/23734686/c-sharp-dictionary-get-the-key-of-the-min-value
-                        // https://stackoverflow.com/questions/2805703/good-way-to-get-the-key-of-the-highest-value-of-a-dictionary-in-c-sharp
-                        // похоже, здесь l - это TAccumulate, а r - TSource (наоборот разницы нет?)
-                        // хотя должно быть наоборот - https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0
-                        // никакой магии, просто тупо перебрать словарь
-                        // похоже, этот индекс будет как раз в leftFrameSide
-                        // нет, надо искать именно минимальный индекс (Value) в словаре (как получить сразу оба значения за один проход?)
-                        char minChar = countDistinctCharacters.Aggregate((l, r) => l.Value < r.Value ? l : r).Key;
-                        int minValue = countDistinctCharacters[minChar];
-                        Console.WriteLine($"dictionary is full {isListFull}, the farest char {minChar} was found with index {minValue} and will be removed from");
+                        // if more, save into it, otherwise disregard
+                        maxLength = countDistinctCharactersCount;
 
-                        // определить, сравнить и, если надо, зафиксировать размер цепочки
-                        // calculate the frame size - it will be equal to subtract leftFrameSide from current index
-                        int thisChainLength = i - leftFrameSide;
-                        Console.WriteLine($"new substring length {thisChainLength} was defined and will be compared with max found length {foundLongestSubstring}");
+                        // здесь надо выделить подстроку, соотвествующую текущему словарю, ее конец - это текущий index=14 (он уже на 1 больше, чем конец словаря), а длина - длина словаря = 3
+                        // сначала получим стартовый индекс подстроки 14 - 3 = 11
+                        int substringStart = index - countDistinctCharactersCount;
+                        maxSubString = input.Substring(substringStart, countDistinctCharactersCount);
 
-                        // compare this frame size with max value stored in foundLongestSubstring
-                        if (thisChainLength > foundLongestSubstring)
-                        {
-                            // if more, save into it, otherwise disregard
-                            foundLongestSubstring = thisChainLength;
-                            Console.WriteLine($"new max found length {foundLongestSubstring} was set");
-
-                        }
-
-                        // удаляем кандидата на выбывание - самый последний встреченный символ
-                        // remove the elimination candidate - the most recently encountered character
-                        countDistinctCharacters.Remove(minChar);
-                        //isListFull = false;
-                        Console.WriteLine($"dictionary is full {isListFull}, the farest char {minChar} was found with index {minValue} and will be removed from");
-
-                        // set index of the removed Key plus 1 in leftFrameSide - this will be the new frame start index
-                        // записать новый индекс в переменную leftFrameSide - (minValue + 1) будет новым началом окна
-                        leftFrameSide = minValue + 1;
-
-                        // словарь не полный, добавить в него новый символ 
-                        // dictionary is not full now and can add new char in it
+                        Console.WriteLine($" ------------------- new max found, max length now is {maxLength}, max substring is {maxSubString}");
                     }
-                    //else // - else убрать, словарь всегда будет неполный, даже если был полный
-                    // если влазит, добавить в словарь
-                    countDistinctCharacters.Add(indexChar, i);
-                    Console.WriteLine($"dictionary is full = {isListFull}, new char {indexChar} with index {i} was added, new dictionary length is {countDistinctCharacters.Count}");
 
-                    if (!isListFull)
-                    {
-                        int countDistinctCharactersLenght = countDistinctCharacters.Count;
-                        if (countDistinctCharactersLenght == k)
-                        {
-                            isListFull = true;
-                            Console.WriteLine($"dictionary became full = {isListFull}, its length is {countDistinctCharacters.Count}");
+                    // теперь взять индекс неудачливого символа и назначить его текущим, чтобы прямо сейчас символ добавился в словарь
+                    // переставили индекс на предыдущее вхождение в словарь встретившегося повторно символа
+                    int oldIndex = index;
+                    index = countDistinctCharacters[indexChar] + 1;
 
-                        }
-                    }
+                    // очистили словарь                    
+                    countDistinctCharacters = new();
+                    Console.WriteLine($"index = {index}, countDistinctCharacters was reset, oldIndex = {oldIndex}");                    
                 }
+
+                // все лишние удалены, добавляем символ, которого точно еще нет в словаре
+                indexChar = input[index];
+                countDistinctCharacters.Add(indexChar, index);
+                Console.WriteLine($"new char {indexChar} on index {index} was added in dictionary with value {index}");
+                index++;
+                stepCounter++;
+                Console.WriteLine($"index = {index}, stepCounter = {stepCounter}, is waiting a new cycle now");
+
                 // ехать дальше по строке
+                //Console.ReadKey();
             }
 
-            string output = String.Join("", countDistinctCharacters.Keys);
-            Console.WriteLine($"kDistinctCharacters is {output}, the longest substring length = {foundLongestSubstring}");
+            Console.WriteLine($"+++++++++++ SOLUTION IS --> max distinct substring length is {maxLength}, max substring is {maxSubString}");
 
-            return foundLongestSubstring;
+            return maxLength;
         }
-
     }
 }
