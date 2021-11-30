@@ -8,5 +8,6 @@ namespace PatternSlidingWindow
 {
     public class FruitsIntoBaskets
     {
+        // the same case as LongestSubstringWithMaximumKDistinctCharacters with K=2
     }
 }

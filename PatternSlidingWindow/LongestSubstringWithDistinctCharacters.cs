@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace PatternSlidingWindow
 {
-    public static class LongestSubstringWithMaximumKDistinctCharacters
+    public class LongestSubstringWithDistinctCharacters
     {
-        public static void MainLongestSubstring()
+        public static void MainLongestDistinctSubstring()
         {
-            Console.WriteLine("Class - Longest substring with maximum K distinct characters");
+            Console.WriteLine("Class - Longest Substring with Distinct Characters");
 
             string input = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiiirrr";
             // caaarrraaa r r r a a a c i i i i i iiiiiiiiiiiiiirrr;
             // 0123456789101112131415161718192021;
-            int k = 3;
+            
             string blank0 = "  ";
 
             for (int i = 0; i < input.Length; i++)
@@ -34,84 +34,20 @@ namespace PatternSlidingWindow
             Console.WriteLine("\n-------------------------------------------------------------------------------------------------------------------------");
 
             Console.WriteLine($"String input is {input}");
-            Console.WriteLine($"Necessary K Distinct Characters is {k}");
 
-            int output = FindLongestSubstring(input, k);
-            //int output = FindLongestSubstringOriginal(input, k);
+            int output = FindLongestDistinctSubstring(input);
 
-            Console.WriteLine($"the length of the longest substring in input string with no more than {k} distinct characters is {output}");
+            Console.WriteLine($"the length of the longest substring in input string with all distinct characters is {output}");
         }
 
-        // написать код по оригинальному решению
-        public static int FindLongestSubstringOriginal(string input, int k) // 16-17 lines - FindLongestSubstringOriginal took 55 steps to execute input string with length 39 and K = 3
-        {
-            int stepCounter = 0;
 
+        public static int FindLongestDistinctSubstring(string input) // 27 lines
+        {
+            int k = 3;
             if (input == null || input.Length == 0)
             {
                 Console.WriteLine($"String <<input>> is not defined or its length = 0, cannot use this data");
                 return -1;
-            }
-
-            int windowStart = 0;
-            int maxLength = 0;
-
-            Dictionary<char, int> charFrequencyMap = new();
-
-            for (int windowEnd = 0; windowEnd < input.Length; windowEnd++)
-            {
-                char rightChar = input[windowEnd];
-
-                // получаем предыдущее сохраненное в словаре значение текущего (очередного в цикле) символа в строке - если такого символа в словаре нет, берем значение 0
-                // charFrequencyMap.put(rightChar, charFrequencyMap.getOrDefault(rightChar, 0) + 1);
-                int resultGetValueOrDefault = charFrequencyMap.GetValueOrDefault(rightChar, 0);
-
-                // заносим символ rightChar в словарь cо значением +1 от уже существующего значения такого же ключа в словаре, если такого символа еще не было, берем значение 1
-                charFrequencyMap[rightChar] = resultGetValueOrDefault + 1;
-
-                // если длина словаря стала больше положенной (записали лишний символ), надо один удалить
-                while (charFrequencyMap.Count > k)
-                {
-                    // достаем первый символ слева в скользящем окне (на первом шаге 0)
-                    char leftChar = input[windowStart];
-                    // уменьшаем значение ключа этого символа (как бы старим его на один шаг)
-                    charFrequencyMap[leftChar] = charFrequencyMap[leftChar] - 1;
-
-                    // если это значение стало нулевым, ключ совсем состарился и будет удален
-                    if (charFrequencyMap[leftChar] == 0)
-                    {
-                        charFrequencyMap.Remove(leftChar);
-                    }
-
-                    // двигаемся на следующий символ скользящего окна
-                    windowStart++; // shrink the window
-                    stepCounter++; // count steps of execution
-                }
-
-                // сохраняем максимальную длину скользящего окна на каждом проходе цикла
-                maxLength = Math.Max(maxLength, windowEnd - windowStart + 1);
-                stepCounter++; // count steps of execution
-            }
-
-            Console.WriteLine($"FindLongestSubstringOriginal took {stepCounter} steps to execute input string with length {input.Length} and K = {k}");
-
-            return maxLength;
-        }
-
-        public static int FindLongestSubstring(string input, int k) // 27 lines - FindLongestSubstringOriginal took 39 steps to execute input string with length 39 and K = 3
-        {
-            int stepCounter = 0;
-
-            if (input == null || input.Length == 0)
-            {
-                Console.WriteLine($"String <<input>> is not defined or its length = 0, cannot use this data");
-                return -1;
-            }
-
-            if (k >= input.Length)
-            {
-                Console.WriteLine($"Condition << K = {k} >> is more then string length, so the << string length = {input.Length} >> will be solution in this case");
-                return input.Length;
             }
 
             // define Dictionary, where Key is char from input string and Value - its latest found index
@@ -198,14 +134,13 @@ namespace PatternSlidingWindow
                     }
                 }
                 // ехать дальше по строке
-                stepCounter++; // count steps of execution
             }
 
             string output = String.Join("", countDistinctCharacters.Keys);
             Console.WriteLine($"kDistinctCharacters is {output}, the longest substring length = {foundLongestSubstring}");
-            Console.WriteLine($"FindLongestSubstringOriginal took {stepCounter} steps to execute input string with length {input.Length} and K = {k}");
 
             return foundLongestSubstring;
         }
+
     }
 }
