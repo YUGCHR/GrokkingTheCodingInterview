@@ -4,28 +4,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// Hard
+// Given two strings s and t of lengths m and n respectively.
+// -------------------------------------------------------------------------------------------------------------------------
+// Return the minimum window substring of s such that every character in t (including duplicates) is included in the window.
+// -------------------------------------------------------------------------------------------------------------------------
+// If there is no such substring, return the empty string "".
+// The testcases will be generated such that the answer is unique.
+// A substring is a contiguous sequence of characters within the string.
+
 namespace PatternSlidingWindow
 {
-    public class LongestSubstringWithDistinctCharacters
+    public class MinimumWindowSubstring
     {
-        public static void MainLongestDistinctSubstring()
+        public static void MainMinimumWindowSubstring()
         {
-            Console.WriteLine("Class - Longest Substring with Distinct Characters");
+            Console.WriteLine("Class - Minimum Window Substring");
 
-            //string input = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiiirarcr";
-            // caaarrraaa r r r a a a c i i i i i iiiiiiiiiiiii  i  r  a  r  c  r;
-            // 0123456789101112131415161718192021               35 36 37 38 39 40;
+            // A D O B E C O D E B  A  N  C
+            // 0 1 2 3 4 5 6 7 8 9 10 11 12
 
-            string input = "caraarcrraccaariirraaacimibiibbirriiaaiicciiiciairibidiiirarcr";
+            string stringWhereToSearch = "ADOBECODEBANC";
+            string searchingString = "ABC";
 
             string blank0 = "  ";
 
-            for (int i = 0; i < input.Length; i++)
+            for (int i = 0; i < stringWhereToSearch.Length; i++)
             {
-                Console.Write($"  {input[i]},");
+                Console.Write($"  {stringWhereToSearch[i]},");
             }
             Console.Write("\n");
-            for (int i = 0; i < input.Length; i++)
+            for (int i = 0; i < stringWhereToSearch.Length; i++)
             {
                 if (i > 9)
                 {
@@ -35,45 +44,34 @@ namespace PatternSlidingWindow
             }
             Console.WriteLine("\n-------------------------------------------------------------------------------------------------------------------------");
 
-            Console.WriteLine($"String input is {input}");
+            Console.WriteLine($"String Where To Search is {stringWhereToSearch}");
+            Console.WriteLine($"String Searching String is {searchingString}");
 
-            int output = FindLongestDistinctSubstring(input);
+            string output = FindMinimumWindowSubstring(stringWhereToSearch, searchingString);
 
-            Console.WriteLine($"the length of the longest substring in input string with all distinct characters is {output}");
+            Console.WriteLine($"The minimum window substring is {output} which includes {searchingString}");
         }
 
-        // написать код по оригинальному решению
-        // отсюда перевести третий вариант - https://www.geeksforgeeks.org/length-of-the-longest-substring-without-repeating-characters/
-        public static int FindLongestDistinctSubstringOriginal(string input) // __ lines
-        {
-            int maxLength = 0;
-            string maxSubString = "";
-
-            Console.WriteLine($"+++++++++++ SOLUTION IS --> max distinct substring length is {maxLength}, max substring is {maxSubString}");
-
-            return maxLength;
-        }
-
-        public static int FindLongestDistinctSubstring(string input) // 23 lines
+        public static string FindMinimumWindowSubstring(string stringWhereToSearch, string searchingString) // 27 lines
         {
             int stepCounter = 0;
             int maxLength = 0;
 
-            if (input == null || input.Length == 0)
+            if (stringWhereToSearch == null || stringWhereToSearch.Length == 0)
             {
-                Console.WriteLine($"String <<input>> is not defined or its length = 0, cannot use this data");
-                return 0;
+                Console.WriteLine($"String <<stringWhereToSearch>> is not defined or its length = 0, cannot use this data");
+                return "";
             }
 
-            // define Dictionary, where Key is char from input string and Value - its latest found index
+            // define Dictionary, where Key is char from stringWhereToSearch string and Value - its latest found index
             Dictionary<char, int> countDistinctCharacters = new();
 
             int index = 0;
             string maxSubString = "";
 
-            while (index < input.Length)
+            while (index < stringWhereToSearch.Length)
             {
-                char indexChar = input[index];
+                char indexChar = stringWhereToSearch[index];
 
                 Console.WriteLine($"<<<CYCLE START>>> - {index} loop of cycle, indexChar is {indexChar}");
 
@@ -107,7 +105,7 @@ namespace PatternSlidingWindow
                         // здесь надо выделить подстроку, соотвествующую текущему словарю, ее конец - это текущий index=14 (он уже на 1 больше, чем конец словаря), а длина - длина словаря = 3
                         // сначала получим стартовый индекс подстроки 14 - 3 = 11
                         int substringStart = index - countDistinctCharactersCount;
-                        maxSubString = input.Substring(substringStart, countDistinctCharactersCount);
+                        maxSubString = stringWhereToSearch.Substring(substringStart, countDistinctCharactersCount);
 
                         Console.WriteLine($" ------------------- new max found, max length now is {maxLength}, max substring is {maxSubString}");
                     }
@@ -119,11 +117,11 @@ namespace PatternSlidingWindow
 
                     // очистили словарь                    
                     countDistinctCharacters = new();
-                    Console.WriteLine($"index = {index}, countDistinctCharacters was reset, oldIndex = {oldIndex}");                    
+                    Console.WriteLine($"index = {index}, countDistinctCharacters was reset, oldIndex = {oldIndex}");
                 }
 
                 // все лишние удалены, добавляем символ, которого точно еще нет в словаре
-                indexChar = input[index];
+                indexChar = stringWhereToSearch[index];
                 countDistinctCharacters.Add(indexChar, index);
                 Console.WriteLine($"new char {indexChar} on index {index} was added in dictionary with value {index}");
                 index++;
@@ -136,7 +134,7 @@ namespace PatternSlidingWindow
 
             Console.WriteLine($"+++++++++++ SOLUTION IS --> max distinct substring length is {maxLength}, max substring is {maxSubString}");
 
-            return maxLength;
+            return "";
         }
     }
 }

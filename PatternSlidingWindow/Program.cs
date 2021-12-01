@@ -9,12 +9,15 @@ namespace PatternSlidingWindow
             Console.WriteLine("Solution - Grokking the Coding Interview");
             Console.WriteLine("Project - Pattern: Sliding Window\n");
 
-
             //SmallestSubarrayWithAGivenSum.MainSmallestSubarray();
 
             //LongestSubstringWithMaximumKDistinctCharacters.MainLongestSubstring();
 
-            LongestSubstringWithDistinctCharacters.MainLongestDistinctSubstring();
+            //LongestSubstringWithDistinctCharacters.MainLongestDistinctSubstring();
+
+            MinimumWindowSubstring.MainMinimumWindowSubstring();
+
+
         }
     }
 }
