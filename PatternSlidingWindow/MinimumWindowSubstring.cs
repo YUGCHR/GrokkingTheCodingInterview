@@ -24,8 +24,11 @@ namespace PatternSlidingWindow
             // A D O B E C O D E B  A  N  C
             // 0 1 2 3 4 5 6 7 8 9 10 11 12
 
-            string stringWhereToSearch = "ADOBECODEBANC";
-            string searchingString = "ABC";
+            //string stringWhereToSearch = "ADOBECODEBANC";
+            //string searchingString = "ABC";
+
+            string stringWhereToSearch = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiicirarr";
+            string searchingString = "arc";
 
             string blank0 = "  ";
 
@@ -52,6 +55,19 @@ namespace PatternSlidingWindow
             Console.WriteLine($"The minimum window substring is {output} which includes {searchingString}");
         }
 
+
+        // искомую строку сохраняем в исходный словарь, символы - это ключи, а значения - сколько раз встречается буква в ней
+        // собираем подстроку из строки поиска в список - берём первый символ, проверяем что такой нужен
+        // записываем его в рабочий словарь с таким же устройством - символы - это ключи, а значения - сколько раз нашли букву, нет - пока не собрали всю длину
+        // вычитаем найденную букву из исходного словаря, пока он не опустеет - это значит, что все буквы собраны, надо измерить цепочку
+        // цепочку в виде окна можно динамически хранить в списке, но может и не надо - наверное, это лишнее
+        // после измерения цепочки, надо выкинуть (вычесть единицу) левую букву из рабочего словаря
+        // если буква при этом исчезла (значение стало равно нулю и ключ удалил), то добавить ее в исходный словарь с единичкой
+        // теперь двигать правую границу, пока исходный словарь опять не опустеет
+        // если же после уменьшения последней (левой) буквы она не обнулилась, то правую границу не двигаем, а двигаем левую, вычитая значения в рабочем словаре, пока буква не удалится
+
+
+        
         public static string FindMinimumWindowSubstring(string stringWhereToSearch, string searchingString) // 27 lines
         {
             int stepCounter = 0;
