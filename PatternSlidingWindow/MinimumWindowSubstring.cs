@@ -24,11 +24,11 @@ namespace PatternSlidingWindow
             // A D O B E C O D E B  A  N  C
             // 0 1 2 3 4 5 6 7 8 9 10 11 12
 
-            //string stringWhereToSearch = "ADOBECODEBANC";
-            //string searchingString = "ABC";
+            string stringWhereToSearch = "ADOBECODEBANC";
+            string searchingString = "ABC";
 
-            string stringWhereToSearch = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiicirarr";
-            string searchingString = "arc";
+            //string stringWhereToSearch = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiicirarr";
+            //string searchingString = "arc";
 
             string blank0 = "  ";
 
@@ -70,8 +70,8 @@ namespace PatternSlidingWindow
             return dict;
         }
 
-        // возвращаем - сам словарь, признак isCharFound - был ли мальчик (символ) и isDictEmpty - стал ли словарь пустым
-        public static (Dictionary<char, int>, bool, bool) IsCharExistInDictionary(Dictionary<char, int> dict, char ch)
+        // возвращаем - сам словарь, признак isLackingCharFound - был ли мальчик (символ) и isDictEmpty - стал ли словарь пустым
+        public static (Dictionary<char, int>, bool, bool) DecimateCharFromDictionary(Dictionary<char, int> dict, char ch)
         {
             // проверяем, есть ли такой символ вообще в словаре
             if (dict.ContainsKey(ch))
@@ -110,13 +110,25 @@ namespace PatternSlidingWindow
             //return dict;
         }
 
+        public static void DictIsVisual(Dictionary<char, int> dict, string dictName)
+        {
+            StringBuilder dictString = new();
+
+            foreach (var ch in dict)
+            {
+                dictString.Append(ch.Key, ch.Value);
+            }
+
+            Console.WriteLine($"#                                                                                       state of dictionary {dictName} # is {dictString}");
+        }
+
         public static string FindMinimumWindowSubstring(string stringWhereToSearch, string searchingString) // 27 lines
         {
             int stepCounter = 0;
             int minLength = int.MaxValue;
             int leftFrameSide = 0;
             int foundChars = 0;
-            bool isCharFound, wasCharRemoved, isDictEmpty;
+            bool isCharFound, isLackingCharFound, wasCharRemoved, isDictFull;
             string minSubstring = "";
 
             int inputLength = stringWhereToSearch.Length;
@@ -132,7 +144,6 @@ namespace PatternSlidingWindow
             Dictionary<char, int> sourceChars = new();
 
             // искомую строку сохраняем в исходный словарь, символы - это ключи, а значения - сколько раз встречается буква в ней            
-
             for (int i = 0; i < searchLength; i++)
             {
                 char thisChar = searchingString[i];
@@ -140,207 +151,157 @@ namespace PatternSlidingWindow
                 stepCounter++;
             }
 
+            DictIsVisual(sourceChars, "SOURCE");
+
+            // sourceCharsFilling=searchLength и isDictFull=true - это одно и то же наполнение словаря
+            // интересует только предельное состояние - не найдено ни одного символа, исходный словарь при этом полный
+            // в дальнейшем надо будет решить, что из них проще использовать
+            // пока этот признак нужен только для подтягивания левой стороны, если ни одного символа не найдено и обе границы окна синхронно двигаются вперед
+            int sourceCharsFilling = searchLength;
+            isDictFull = true;
+
+            // ************************************************************************************************************************************************************
+            // в дальнейшем можно при превышении размера окна больше существующего минимума, сбрасывать словарь (заполнять исходный словарь полностью) и искать все заново
+            // ************************************************************************************************************************************************************
+
             // предполагаем, что везде в int сейчас нули - да, но нет
             Dictionary<char, int> workChars = new();
 
+            // цепочку в виде окна можно динамически хранить в списке, но может и не надо - наверное, это лишнее
             // подстрока скользящего окна - для наглядности отладки, потом убрать
             StringBuilder winString = new();
-            //List<int> indicesDistinctCharacters = new();
+            List<int> indicesDistinctCharacters = new();
 
-            // цепочку в виде окна можно динамически хранить в списке, но может и не надо - наверное, это лишнее
+            Console.WriteLine($"Source dictionary was created, main cycle FOR is started\n");
 
             for (int windowEnd = 0; windowEnd < inputLength; windowEnd++)
             {
                 char thisChar = stringWhereToSearch[windowEnd];
+                // сохраняем цепочку окна для наглядности отладки, потом удалить
                 winString.Append(thisChar);
-                Console.WriteLine($"<<<CYCLE START>>> - {windowEnd} loop of cycle, indexChar is {thisChar}, sliding window substring is {winString}");
+                Console.WriteLine($"\n<<<CYCLE START>>> - {windowEnd} loop of cycle, indexChar is {thisChar}, sliding window substring is {winString}");
 
-                // нет - достаём текущий символ из строки и сравниваем со строкой поиска (string.Contain)
-                //bool isThisCharFound = searchingString.Contains(thisChar);
-
-                // собираем подстроку из строки поиска в список - берём первый символ, проверяем что такой нужен и вычитаем его из исходного словаря
-                // вычитаем найденную букву из исходного словаря, пока он не опустеет - это значит, что все буквы собраны, надо измерить цепочку
-                (sourceChars, isCharFound, wasCharRemoved) = IsCharExistInDictionary(sourceChars, thisChar);
-
-                //if (wasCharRemoved)
-                //{
-                //    // проверяем длину словаря
-                //    int count = sourceChars.Count;
-                //    if (count == 0)
-                //    {
-                //        isDictEmpty = true;
-                //    }
-                //}
+                // находим любой пригодный символ (который есть в искомой строке)
+                // собираем любые годные символы, а удаляем только при движении левой границы окна - внутри достигнутого счастья (найдены все символы искомой строки, исходный словарь пустой)
+                isCharFound = searchingString.Contains(thisChar);
 
                 if (isCharFound)
                 {
+                    sourceCharsFilling--;
+                    isDictFull = false;
+
+                    Console.WriteLine($"!!! Char {thisChar} is usable and will be add to work dict");
+
                     // записываем его в рабочий словарь с таким же устройством - символы - это ключи, а значения - сколько раз нашли букву, нет - пока не собрали всю длину
                     // если символ годный, добавляем его в рабочий словарь (считаем общее количество символов в значениях)
                     workChars = CountCharsInDictionary(workChars, thisChar);
-                }
+                    DictIsVisual(workChars, "WORK");
 
-                // проверяем длину исходного словаря - isDictEmpty = true ?
-                if (sourceChars.Count == 0)
-                {
-                    // если словарь опустел, время замерить цепочку
-                    // можно на старте записать сюда maxInt
-                    int foundSubstringLength = windowEnd - leftFrameSide + 1;
-                    Console.WriteLine($"*** Dictionary is full, calculate foundSubstringLength {foundSubstringLength} = windowEnd {windowEnd} - {leftFrameSide} + 1");
-
-                    if (foundSubstringLength < minLength)
-                    {
-                        // if more, save into it, otherwise disregard
-                        minLength = foundSubstringLength;
-
-                        // здесь надо выделить подстроку, соотвествующую текущему словарю, ее конец - это текущий index=14 (он уже на 1 больше, чем конец словаря), а длина - длина словаря = 3
-                        // сначала получим стартовый индекс подстроки 14 - 3 = 11
-                        int substringStart = windowEnd - (foundSubstringLength - 1);
-                        Console.WriteLine($" calculate substringStart {substringStart} = windowEnd {windowEnd} - ({foundSubstringLength} - 1)");
-
-                        minSubstring = stringWhereToSearch.Substring(substringStart, foundSubstringLength);
-                        Console.WriteLine($" ------------------- new min substring found, min length now is {minLength}, min substring is {minSubstring}");
-                        //сравнить с текущей подстрокой скользящего окна (только для отладки)
-                        Console.WriteLine($" min substring is {minSubstring}, sliding window substring is {winString} - must be the same");
-                    }
-
-                    // после измерения цепочки, надо выкинуть (вычесть единицу) левую букву из рабочего словаря
-                    // узнаем какой символ на левой границе окна
-                    char leftFrameSideChar = stringWhereToSearch[leftFrameSide];
-                    // вычтем его из рабочего словаря
-                    (workChars, isCharFound, wasCharRemoved) = IsCharExistInDictionary(workChars, leftFrameSideChar);
-
-                    // если буква при этом исчезла (значение стало равно нулю и ключ удалил), то добавить ее в исходный словарь с единичкой
-                    // сейчас же (в этом месте) исходный словарь пустой и в нем появится одна (значение 1) только что удаленная буква из рабочего словаря
-                    if (wasCharRemoved)
-                    {
-                        sourceChars = CountCharsInDictionary(sourceChars, leftFrameSideChar);
-
-                    }
-
-
-                    // *******************************************
-                    // сейчас сложный момент - куда передвинуть левую границу (где взять индекс следующего годного символа) - отложим на завтра
-                    // можно запилить while и опять перебирать символы в строке до появления годного
-                    // или опять хранить список индексов в списке, нулевой удалять вместе с символом и перескакивать на новый, ставший нулевым
-                    // *******************************************
-
-
-                    int leftFrameSideCounter = workChars[leftFrameSideChar]--;
-                    Console.WriteLine($"Decrement of countDistinctCharacters[{leftFrameSideChar}] = {workChars[leftFrameSideChar]}");
-
-                    // теперь двигать правую границу, пока исходный словарь опять не опустеет
-                    // если же после уменьшения последней (левой) буквы она не обнулилась, то правую границу не двигаем,
-                    // тогда двигаем левую, вычитая значения в рабочем словаре, пока буква не удалится
-
-
-
-
-
-
-
-
-
-
-                }
-
-
-                // если такой есть, заносим символ в словарь (или список?), считаем количество каждого из найденных символов, если нашлись уже все, ставим отметку, что словарь полный
-                if (isThisCharFound)
-                {
-                    // если в словаре такой уже есть, игнорируем (можно использовать TryAdd) - или можно не добавлять, а перезаписывать? тогда сложнее считать общее количество символов
-                    //if (!countDistinctCharacters.ContainsKey(thisChar))
-
-                    // считаем количество встреченных символов каждого сорта
-                    if (workChars.ContainsKey(thisChar))
-                    {
-                        workChars[thisChar]++;
-                    }
-                    else
-                    {
-                        workChars.Add(thisChar, 1);
-                    }
-
-                    // еще надо сохранить список индексов всех полезных символов - в простом списке по возрастанию
+                    // сохраняем индекс годного символа в список индексов
                     indicesDistinctCharacters.Add(windowEnd);
-                    Console.WriteLine($"Increment of countDistinctCharacters[{thisChar}] = {workChars[thisChar]}, saved CHAR index = {windowEnd}");
 
-                    //foundChars++;
-                    // пока нафиг считать, просто меряем длину словаря
-                    foundChars = workChars.Count;
-                    if (foundChars >= searchLength)
-                    {
-                        // нашлись все символы - сейчас скользящее окно захватывает весь набор искомых символов
-                        isListFull = true;
-                    }
 
-                    // здесь рассмотрим ситуацию, когда встреченный повторно символ является еще и последним в списке индексов, а словарь еще не полный
-                    if (!isListFull && workChars[thisChar] > 1)
+                    // собираем подстроку из строки поиска в список - берём первый символ, проверяем что такой нужен и вычитаем его из исходного словаря
+                    // вычитаем найденную букву из исходного словаря, пока он не опустеет - это значит, что все буквы собраны, надо измерить цепочку
+
+                    // выясняем, является ли найденный символ нехватающим (lacking) для счастья
+                    // возвращаем -
+                    // признак найденного --нехватающего!-- символа,
+                    // признак, что символ был удален из словаря (и счастье стало неполным),
+                    // обновленный словарь с уменьшенным или удаленным символом
+                    (sourceChars, isLackingCharFound, wasCharRemoved) = DecimateCharFromDictionary(sourceChars, thisChar);
+                    DictIsVisual(sourceChars, "SOURCE");
+
+                    if (isLackingCharFound)
                     {
-                        char leftFrameSideChar = stringWhereToSearch[leftFrameSide];
-                        if (thisChar == leftFrameSideChar)
+                        bool isDictEmpty = sourceChars.Count == 0;
+
+                        // проверяем длину исходного словаря - isDictEmpty = true ?
+                        while (isDictEmpty)
                         {
+                            // если словарь опустел, время замерить цепочку
+                            // можно на старте записать сюда maxInt
+                            int foundSubstringLength = windowEnd - leftFrameSide + 1;
+                            Console.WriteLine($"*** WHILE started *** Dictionary empty is {isDictEmpty}, calculate foundSubstringLength {foundSubstringLength} = windowEnd {windowEnd} - {leftFrameSide} + 1");
+
+                            if (foundSubstringLength < minLength)
+                            {
+                                // if more, save into it, otherwise disregard
+                                minLength = foundSubstringLength;
+
+                                // здесь надо выделить подстроку, соотвествующую текущему словарю, ее конец - это текущий index=14 (он уже на 1 больше, чем конец словаря), а длина - длина словаря = 3
+                                // сначала получим стартовый индекс подстроки 14 - 3 = 11
+                                int substringStart = windowEnd - (foundSubstringLength - 1);
+                                Console.WriteLine($" calculate substringStart {substringStart} = windowEnd {windowEnd} - ({foundSubstringLength} - 1)");
+
+                                minSubstring = stringWhereToSearch.Substring(substringStart, foundSubstringLength);
+                                Console.WriteLine($" ------------------- new min substring found, min length now is {minLength}, min substring is {minSubstring}");
+                                //сравнить с текущей подстрокой скользящего окна (только для отладки)
+                                Console.WriteLine($" min substring is {minSubstring}, sliding window substring is {winString} - must be the same");
+                            }
+
+                            // после измерения цепочки, надо выкинуть (вычесть единицу) левую букву из рабочего словаря
+                            // узнаем какой символ на левой границе окна
+                            char leftFrameSideChar = stringWhereToSearch[leftFrameSide];
+                            Console.WriteLine($"--- leftFrameSideChar is {leftFrameSideChar} now and it will be decimated");
+
+                            // вычтем его из рабочего словаря
+                            // теперь надо проверить символ на новой левой границе окна на наличие в рабочем словаре - это сделаем на следующем проходе while
+                            (workChars, isCharFound, wasCharRemoved) = DecimateCharFromDictionary(workChars, leftFrameSideChar);
+                            DictIsVisual(workChars, "WORK");
+
+                            if (!isCharFound)
+                            {
+                                Console.WriteLine($"Something WENT WRONG - isCharFound = {isCharFound} and must be always true here");
+                            }
+                            //if (wasCharRemoved)
+                            //{
+                                Console.WriteLine($"--- leftFrameSideChar {leftFrameSideChar} was decimated from workChars, but will be added to sourceChars");
+
+                                // если буква при этом исчезла (значение стало равно нулю и ключ удалил), то добавить ее в исходный словарь с единичкой
+                                // сейчас же (в этом месте) исходный словарь пустой и в нем появится одна (значение 1) только что удаленная буква из рабочего словаря
+                                // тут еще надо определить общее состояние словаря - если он полный (sourceCharsFilling=searchLength), то установить признак isDictFull=true
+                                sourceChars = CountCharsInDictionary(sourceChars, leftFrameSideChar);
+                                DictIsVisual(sourceChars, "SOURCE");
+
+                                // после того, как хоть символ (нет! - исчез из рабочего словаря) появился в исходном словаре, надо прекратить while и идти по строке в поиске новых годных символов
+                                isDictEmpty = false;
+                            //}
+
+                            // *******************************************
+                            // сейчас сложный момент - куда передвинуть левую границу (где взять индекс следующего годного символа) - отложим на завтра
+                            // можно запилить while и опять перебирать символы в строке до появления годного
+                            // или опять хранить список индексов в списке, нулевой удалять вместе с символом и перескакивать на новый, ставший нулевым
+                            // *******************************************
+
                             // здесь удалить самый первый (нулевой) индекс из списка и присвоить leftFrameSide значение из нового нулевого индекса
                             Console.WriteLine($"Index {indicesDistinctCharacters[0]} in indicesDistinctCharacters[0] will be deleted");
-
                             indicesDistinctCharacters.RemoveAt(0);
-                            // нет - после уменьшения значения в словаре, самый левый символ выбрасываем из работы, поэтому левый край окна сдвигаем на шаг вправо
-                            // тут надо перескочить не на один символ, а перейти к самому маленькому индексу из словаря (а там - печаль - нет индексов)
+                            int startChainToRemove = leftFrameSide;
+
+                            // тут надо перескочить не на один символ, а перейти к следующему индексу из списка индексов
+                            // таким образовм устанавливаем левую границу окна на следующий годный символ, минуя все лишние
                             leftFrameSide = indicesDistinctCharacters[0];
-                            Console.WriteLine($"New index in indicesDistinctCharacters[0] is {leftFrameSide}");
-                        }
-                    }
+                            int lengthChainToRemove = leftFrameSide - startChainToRemove;
+                            Console.WriteLine($"Symbols from 0 to {lengthChainToRemove} = leftFrameSide {leftFrameSide} - startChainToRemove {startChainToRemove} will be removed from sliding window substring is {winString}");
+                            winString.Remove(0, lengthChainToRemove);
+                            Console.WriteLine($"New index in indicesDistinctCharacters[0] is {leftFrameSide} - new left frame side, new sliding window substring is {winString}");
 
-                    // все символы могут найтись только на шаге, когда найден один из них, если пустышка, то сразу идем за следующим
-                    // когда нашлись все символы, измеряем длину подстроки и сохраняем
-                    if (isListFull)
-                    {
-                        int foundSubstringLength = windowEnd - leftFrameSide + 1;
-                        Console.WriteLine($"*** Dictionary is full, calculate foundSubstringLength {foundSubstringLength} = windowEnd {windowEnd} - {leftFrameSide} + 1");
-
-                        // можно на старте записать сюда maxInt
-                        if (foundSubstringLength < minLength || minLength == -1)
-                        {
-                            // if more, save into it, otherwise disregard
-                            minLength = foundSubstringLength;
-
-                            // здесь надо выделить подстроку, соотвествующую текущему словарю, ее конец - это текущий index=14 (он уже на 1 больше, чем конец словаря), а длина - длина словаря = 3
-                            // сначала получим стартовый индекс подстроки 14 - 3 = 11
-                            int substringStart = windowEnd - (foundSubstringLength - 1);
-                            Console.WriteLine($" calculate substringStart {substringStart} = windowEnd {windowEnd} - ({foundSubstringLength} - 1)");
-                            minSubstring = stringWhereToSearch.Substring(substringStart, foundSubstringLength);
-                            Console.WriteLine($" ------------------- new min substring found, min length now is {minLength}, min substring is {minSubstring}");
-                        }
-
-                        // удаляем из словаря символ, который с индексом leftFrameSide
-                        // надо учесть вариант, что этот символ встречался в другом месте
-                        // тогда в словаре надо хранить количество встреченных для каждого символа
-                        // поэтому сразу не удаляем, а смотрим что там у него в значении, точнее, сразу вычитаем 1 из значения, если получился 0, то символ удаляем из словаря
-                        char leftFrameSideChar = stringWhereToSearch[leftFrameSide];
-                        int leftFrameSideCounter = workChars[leftFrameSideChar]--;
-                        Console.WriteLine($"Decrement of countDistinctCharacters[{leftFrameSideChar}] = {workChars[leftFrameSideChar]}");
-
-                        // здесь удалить самый первый (нулевой) индекс из списка и присвоить leftFrameSide значение из нового нулевого индекса
-                        Console.WriteLine($"Index {indicesDistinctCharacters[0]} in indicesDistinctCharacters[0] will be deleted");
-
-                        indicesDistinctCharacters.RemoveAt(0);
-                        // нет - после уменьшения значения в словаре, самый левый символ выбрасываем из работы, поэтому левый край окна сдвигаем на шаг вправо
-                        // тут надо перескочить не на один символ, а перейти к самому маленькому индексу из словаря (а там - печаль - нет индексов)
-                        leftFrameSide = indicesDistinctCharacters[0];
-                        Console.WriteLine($"New index in indicesDistinctCharacters[0] is {leftFrameSide}");
-
-                        // наверное, правильнее меньше или равно нулю, а то страшно
-                        if (leftFrameSideCounter == 0)
-                        {
-                            workChars.Remove(leftFrameSideChar);
-                            //удалили символ, словарь перестал быть томным
-                            isListFull = false;
-                            Console.WriteLine($"Char {leftFrameSideChar} was removed from countDistinctCharacters, becouse it value became {leftFrameSideCounter}, dictionary if full = {isListFull}");
+                            //leftFrameSideChar = stringWhereToSearch[leftFrameSide];
+                            // если он там есть, то цикл while надо продолжить, подтягивая вправо левую границу, пока в рабочем словаре хватает букв
+                            // это соотвествует ситуации, когда окно уменьшилось из-за сдвинутой левой границы, но в цепочке по прежнему есть все необходимые буквы в необходимом количестве
+                            // тогда уменьшаем окно и на каждом шаге фиксируем минимум, пока не перестанет хватать букв - тогда опять начнем двигать правую границу вперед
+                            // возвращаем - признак найденного символа, признак, что символ был удален, обновленный словарь с уменьшенным или удаленным символом
+                            // здесь эту операцию проделываем не над исходным словарем, а над рабочим - ожидая, когда появится признак, что символ удален
+                            //(workChars, isCharFound, wasCharRemoved) = IsCharExistInDictionary(workChars, leftFrameSideChar);
                         }
                     }
                 }
 
-                // здесь - только если еще/уже вообще ни одного символа не найдено - то есть, словарь сейчас пустой
-                if (foundChars == 0)
+                // здесь - только если еще/уже вообще ни одного символа не найдено
+                // (наверное, это может быть только в начале, когда еще не нашли символов)
+                // в дальнейшем хоть одна буква всегда будет оставаться на левой границе
+                if (isDictFull)
                 {
                     leftFrameSide++;
                 }
