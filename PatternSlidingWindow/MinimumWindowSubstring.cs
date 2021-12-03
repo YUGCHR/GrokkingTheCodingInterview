@@ -175,7 +175,7 @@ namespace PatternSlidingWindow
             int minLength = int.MaxValue;
             int leftFrameSide = 0;
             bool isCharFound, isRight, isHappinessComplete;
-            bool isUsefulCharFound = true;
+            bool isUsefulCharFound = true;  
             string minSubstring = "";
 
             int inputLength = stringWhereToSearch.Length;
@@ -251,27 +251,11 @@ namespace PatternSlidingWindow
 
                     // если вдруг наступило полное счастье - собрана вся цепочка, производим замеры
                     while (isHappinessComplete)
-                    {
-                        // если словарь опустел, время замерить цепочку
-                        // можно на старте записать сюда maxInt
-                        int foundSubstringLength = windowEnd - leftFrameSide + 1;
-                        Console.WriteLine($"*** WHILE started *** Dictionary empty is {isHappinessComplete}, calculate foundSubstringLength {foundSubstringLength} = windowEnd {windowEnd} - {leftFrameSide} + 1");
+                    {                        
+                        Console.WriteLine($"*** WHILE started *** Dictionary empty is {isHappinessComplete}, calculate foundSubstringLength = windowEnd {windowEnd} - {leftFrameSide} + 1");
 
-                        if (foundSubstringLength < minLength)
-                        {
-                            // if more, save into it, otherwise disregard
-                            minLength = foundSubstringLength;
-
-                            // здесь надо выделить подстроку, соотвествующую текущему словарю, ее конец - это текущий index=14 (он уже на 1 больше, чем конец словаря), а длина - длина словаря = 3
-                            // сначала получим стартовый индекс подстроки 14 - 3 = 11
-                            int substringStart = windowEnd - (foundSubstringLength - 1);
-                            Console.WriteLine($" calculate substringStart {substringStart} = windowEnd {windowEnd} - ({foundSubstringLength} - 1)");
-
-                            minSubstring = stringWhereToSearch.Substring(substringStart, foundSubstringLength);
-                            Console.WriteLine($" ------------------- new min substring found, min length now is {minLength}, min substring is {minSubstring}");
-                            //сравнить с текущей подстрокой скользящего окна (только для отладки)
-                            Console.WriteLine($" min substring is {minSubstring}, sliding window substring is {winString} - must be the same");
-                        }
+                        // проверяем найденную цепочку на минимальный размер и, если да, обновляем минимумы - длину и саму подстроку
+                        (minSubstring, minLength) = ExamineTheFoundSequenceForMinimum(leftFrameSide, minLength, windowEnd, stringWhereToSearch, minSubstring, winString);
 
                         // после измерения цепочки, надо выкинуть (вычесть единицу) левую букву из ТРЕТЬЕГО словаря и посмотреть на остаток
                         // для этого сначала узнаем какой символ на левой границе окна
@@ -338,6 +322,32 @@ namespace PatternSlidingWindow
             Console.WriteLine($"+++++++++++ SOLUTION IS --> max distinct substring length is {minLength}, max substring is {minSubstring}");
 
             return minSubstring;
+        }
+
+        private static (string, int) ExamineTheFoundSequenceForMinimum(int leftFrameSide, int minLength, int windowEnd, string stringWhereToSearch, string minSubstring, StringBuilder winString)
+        {
+            // если словарь опустел, время замерить цепочку
+            // можно на старте записать сюда maxInt
+            int foundSubstringLength = windowEnd - leftFrameSide + 1;
+
+            if (foundSubstringLength < minLength)
+            {
+                // if more, save into it, otherwise disregard
+                minLength = foundSubstringLength;
+
+                // здесь надо выделить подстроку, соотвествующую текущему словарю, ее конец - это текущий index=14 (он уже на 1 больше, чем конец словаря), а длина - длина словаря = 3
+                // сначала получим стартовый индекс подстроки 14 - 3 = 11
+                int substringStart = windowEnd - (foundSubstringLength - 1);
+                Console.WriteLine($" calculate substringStart {substringStart} = windowEnd {windowEnd} - ({foundSubstringLength} - 1)");
+
+                minSubstring = stringWhereToSearch.Substring(substringStart, foundSubstringLength);
+                Console.WriteLine($" ------------------- new min substring found, min length now is {minLength}, min substring is {minSubstring}");
+                //сравнить с текущей подстрокой скользящего окна (только для отладки)
+                Console.WriteLine($" min substring is {minSubstring}, sliding window substring is {winString} - must be the same");
+
+                return (minSubstring, minLength);
+            }
+            return (minSubstring, minLength);
         }
     }
 }
