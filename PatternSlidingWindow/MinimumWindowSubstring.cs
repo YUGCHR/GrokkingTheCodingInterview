@@ -175,7 +175,7 @@ namespace PatternSlidingWindow
             int minLength = int.MaxValue;
             int leftFrameSide = 0;
             bool isCharFound, isRight, isHappinessComplete;
-            bool isUsefulCharFound = true;  
+            bool isUsefulCharFound = true;
             string minSubstring = "";
 
             int inputLength = stringWhereToSearch.Length;
@@ -221,6 +221,7 @@ namespace PatternSlidingWindow
 
             for (int windowEnd = 0; windowEnd < inputLength; windowEnd++)
             {
+                stepCounter++;
                 char thisChar = stringWhereToSearch[windowEnd];
                 // сохраняем цепочку окна для наглядности отладки, потом удалить
                 winString.Append(thisChar);
@@ -244,69 +245,25 @@ namespace PatternSlidingWindow
                     // сохраняем индекс годного символа в список индексов
                     indicesDistinctCharacters.Add(windowEnd);
 
-                    // теперь переливаем символ из исходного словаря в рабочий, пока счастье не станет полным
+                    // теперь переливаем символ из исходного словаря в рабочий (и ждем, пока счастье не станет полным)
                     // isRight - если false = from work to source, если true - from source to work
                     isRight = true;
                     (sourceChars, workChars, isHappinessComplete) = TransfuseToBecomeHappy(sourceChars, workChars, thisChar, isRight);
 
                     // если вдруг наступило полное счастье - собрана вся цепочка, производим замеры
                     while (isHappinessComplete)
-                    {                        
+                    {
+                        stepCounter++;
                         Console.WriteLine($"*** WHILE started *** Dictionary empty is {isHappinessComplete}, calculate foundSubstringLength = windowEnd {windowEnd} - {leftFrameSide} + 1");
 
                         // проверяем найденную цепочку на минимальный размер и, если да, обновляем минимумы - длину и саму подстроку
                         (minSubstring, minLength) = ExamineTheFoundSequenceForMinimum(leftFrameSide, minLength, windowEnd, stringWhereToSearch, minSubstring, winString);
 
-                        // после измерения цепочки, надо выкинуть (вычесть единицу) левую букву из ТРЕТЬЕГО словаря и посмотреть на остаток
-                        // для этого сначала узнаем какой символ на левой границе окна
-                        char leftFrameSideChar = stringWhereToSearch[leftFrameSide];
-                        // вычтем его из рабочего словаря
-                        int residueThird = --thirdDict[leftFrameSideChar];
-                        int residueWork = workChars[leftFrameSideChar];
-                        bool unhappy = residueThird < residueWork;
-                        DictIsVisual(workChars, "THIRD");
-                        DictIsVisual(thirdDict, "THIRD");
-                        Console.WriteLine($"--- leftFrameSideChar {leftFrameSideChar} was sutract from THIRD and residue = {residueThird}, it <> residueWork {residueWork}, so unhappy is {unhappy}");
-                        // вот! - берём удаляемый слева символ, удаляем его из третьего словаря, берём остаток и проверяем этот же символ в рабочем словаре
-                        // если этот остаток больше или равен значению в рабочем (рабочий при этом не трогаем), то двигаем границу дальше на запад - полное счастье продолжается
-                        // если такого символа больше не осталось (0), то полное счастье закончилось                        
-                        if (unhappy)
-                        {
-                            // тогда еще переливаем этот символ из рабочего словаря в исходный
-                            // меняем направление перелива
-                            isRight = false;
-                            (sourceChars, workChars, isHappinessComplete) = TransfuseToBecomeHappy(sourceChars, workChars, leftFrameSideChar, isRight);
-                            // он и так вернется из этого направления метода всегда false, но на всякий случай
-                            isHappinessComplete = false;
-                            Console.WriteLine($"XXXXX - isHappinessComplete now = {isHappinessComplete}");
+                        // проверяем символ на левой границе - он просто полезный или совершенно необходимый для счастья и без него полного счастья не будет
+                        (sourceChars, workChars, thirdDict, isHappinessComplete) = ExamineLeftFrameSide(sourceChars, workChars, thirdDict, leftFrameSide, stringWhereToSearch);
 
-                        }
-
-                        // если запас полезных символов не истощился, то полное счастье продолжется и едет на следующий круг while
-                        // если счастье закончилась, все равно надо выполнить эти же действия, только while больше не запустится
-                        // двигаем восточную (левую) границу окна на запад
-                        // для этого надо удалить самый первый (нулевой) индекс из списка и присвоить leftFrameSide значение из нового нулевого индекса
-                        Console.WriteLine($"Index {indicesDistinctCharacters[0]} in indicesDistinctCharacters[0] will be deleted");
-                        indicesDistinctCharacters.RemoveAt(0);
-                        if (indicesDistinctCharacters.Count > 0)
-                        {
-
-                            // сохраняем про запас бывшую границу, чтобы рассчитать длину перехода для наглядной строки - потом удалить
-                            int startChainToRemove = leftFrameSide;
-
-                            // тут надо перескочить не на один символ, а перейти к следующему индексу из списка индексов
-                            // таким образовм устанавливаем левую границу окна на следующий годный символ, минуя все лишние
-                            leftFrameSide = indicesDistinctCharacters[0];
-                            int lengthChainToRemove = leftFrameSide - startChainToRemove;
-                            Console.WriteLine($"Symbols from 0 to {lengthChainToRemove} = leftFrameSide {leftFrameSide} - startChainToRemove {startChainToRemove} will be removed from sliding window substring is {winString}");
-
-                            winString.Remove(0, lengthChainToRemove);
-                            Console.WriteLine($"New index in indicesDistinctCharacters[0] is {leftFrameSide} - new left frame side, new sliding window substring is {winString}");
-                        }
-
-                        // если он там есть, то цикл while надо продолжить, подтягивая вправо левую границу, пока в рабочем словаре хватает букв
-                        // это соотвествует ситуации, когда окно уменьшилось из-за сдвинутой левой границы, но в цепочке по прежнему есть все необходимые буквы в необходимом количестве
-                        // тогда уменьшаем окно и на каждом шаге фиксируем минимум, пока не перестанет хватать букв - тогда опять начнем двигать правую границу вперед                        
+                        // удаляем символ на левой границе и двигаем границу вперед
+                        (indicesDistinctCharacters, leftFrameSide, winString) = MoveLeftFrameSide(indicesDistinctCharacters, leftFrameSide, winString);
                     }
                 }
 
@@ -319,9 +276,76 @@ namespace PatternSlidingWindow
                 }
             }
 
-            Console.WriteLine($"+++++++++++ SOLUTION IS --> max distinct substring length is {minLength}, max substring is {minSubstring}");
+            Console.WriteLine($"+++++++++++ SOLUTION IS --> max distinct substring length is {minLength}, max substring is {minSubstring}, input string length = {inputLength}, steps count = {stepCounter}");
 
             return minSubstring;
+        }
+
+        private static (List<int>, int, StringBuilder) MoveLeftFrameSide(List<int> indicesDistinctCharacters, int leftFrameSide, StringBuilder winString)
+        {
+            // если запас полезных символов не истощился, то полное счастье продолжется и едет на следующий круг while
+            // если счастье закончилась, все равно надо выполнить эти же действия, только while больше не запустится
+            // двигаем восточную (левую) границу окна на запад
+            // для этого надо удалить самый первый (нулевой) индекс из списка и присвоить leftFrameSide значение из нового нулевого индекса
+            Console.WriteLine($"Index {indicesDistinctCharacters[0]} in indicesDistinctCharacters[0] will be deleted");
+            indicesDistinctCharacters.RemoveAt(0);
+            if (indicesDistinctCharacters.Count > 0)
+            {
+
+                // сохраняем про запас бывшую границу, чтобы рассчитать длину перехода для наглядной строки - потом удалить
+                int startChainToRemove = leftFrameSide;
+
+                // тут надо перескочить не на один символ, а перейти к следующему индексу из списка индексов
+                // таким образовм устанавливаем левую границу окна на следующий годный символ, минуя все лишние
+                leftFrameSide = indicesDistinctCharacters[0];
+                int lengthChainToRemove = leftFrameSide - startChainToRemove;
+                Console.WriteLine($"Symbols from 0 to {lengthChainToRemove} = leftFrameSide {leftFrameSide} - startChainToRemove {startChainToRemove} will be removed from sliding window substring is {winString}");
+
+                winString.Remove(0, lengthChainToRemove);
+                Console.WriteLine($"New index in indicesDistinctCharacters[0] is {leftFrameSide} - new left frame side, new sliding window substring is {winString}");
+            }
+
+            // если он там есть, то цикл while надо продолжить, подтягивая вправо левую границу, пока в рабочем словаре хватает букв
+            // это соотвествует ситуации, когда окно уменьшилось из-за сдвинутой левой границы, но в цепочке по прежнему есть все необходимые буквы в необходимом количестве
+            // тогда уменьшаем окно и на каждом шаге фиксируем минимум, пока не перестанет хватать букв - тогда опять начнем двигать правую границу вперед
+            return (indicesDistinctCharacters, leftFrameSide, winString);
+        }
+
+        private static (Dictionary<char, int>, Dictionary<char, int>, Dictionary<char, int>, bool) ExamineLeftFrameSide(Dictionary<char, int> sourceChars, Dictionary<char, int> workChars, Dictionary<char, int> thirdDict, int leftFrameSide, string stringWhereToSearch)
+        {
+            // сюда попадаем только с полным счастьем, чтобы не брать его снаружи (и потом, возможно, менять входной параметр), объявляем его здесь
+            bool isHappinessComplete = true;
+
+            // после измерения цепочки, надо выкинуть (вычесть единицу) левую букву из ТРЕТЬЕГО словаря и посмотреть на остаток
+            // для этого сначала узнаем какой символ на левой границе окна
+            char leftFrameSideChar = stringWhereToSearch[leftFrameSide];
+
+            // вычтем его из рабочего словаря
+            // вот! - берём удаляемый слева символ, удаляем его из третьего словаря, берём остаток и проверяем этот же символ в рабочем словаре
+            int residueThird = --thirdDict[leftFrameSideChar];
+            int residueWork = workChars[leftFrameSideChar];
+
+            // если этот остаток больше или равен значению в рабочем (рабочий при этом не трогаем), то двигаем границу дальше на запад - полное счастье продолжается
+            // если такого символа больше не осталось (0), то полное счастье закончилось
+            // а если запас полезных символов не истощился, то полное счастье продолжется и едет на следующий круг while
+            bool unhappy = residueThird < residueWork;
+
+            DictIsVisual(workChars, "THIRD");
+            DictIsVisual(thirdDict, "THIRD");
+            Console.WriteLine($"--- leftFrameSideChar {leftFrameSideChar} was sutract from THIRD and residue = {residueThird}, it <> residueWork {residueWork}, so unhappy is {unhappy}");
+
+            if (unhappy)
+            {
+                // счастье закончилось, удаляем отнятый символ - переливаем этот символ из рабочего словаря в исходный
+                // задаем направление перелива
+                bool isRight = false;
+                (sourceChars, workChars, isHappinessComplete) = TransfuseToBecomeHappy(sourceChars, workChars, leftFrameSideChar, isRight);
+                // он и так вернется из этого направления метода всегда false, но на всякий случай
+                isHappinessComplete = false;
+                Console.WriteLine($"XXXXX - isHappinessComplete now = {isHappinessComplete}");
+            }
+
+            return (sourceChars, workChars, thirdDict, isHappinessComplete);
         }
 
         private static (string, int) ExamineTheFoundSequenceForMinimum(int leftFrameSide, int minLength, int windowEnd, string stringWhereToSearch, string minSubstring, StringBuilder winString)
