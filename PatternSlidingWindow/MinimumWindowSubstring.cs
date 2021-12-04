@@ -44,10 +44,10 @@ namespace PatternSlidingWindow
             // A D O B E C O D E B  A  N  C
             // 0 1 2 3 4 5 6 7 8 9 10 11 12
 
-            //string stringWhereToSearch = "ADOBECODEBANC";
-            //string searchingString = "ABC";
-            string stringWhereToSearch = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiicirarr";
-            string searchingString = "aarrcc";
+            string stringWhereToSearch = "ADOBECODEBANC";
+            string searchingString = "ABC";
+            //string stringWhereToSearch = "caaarrraaarrraaaciiiiiiiiiiiiiiiiiicirarr";
+            //string searchingString = "aarrcc";
 
             string blank0 = "  ";
 
@@ -69,9 +69,113 @@ namespace PatternSlidingWindow
             Console.WriteLine($"String Where To Search is {stringWhereToSearch}");
             Console.WriteLine($"String Searching String is {searchingString}");
 
-            string output = FindMinimumWindowSubstring(stringWhereToSearch, searchingString);
+            //string output = FindMinimumWindowSubstring(stringWhereToSearch, searchingString);
+            string output = FindMinimumWindowSubstringOriginal(stringWhereToSearch, searchingString);
 
             Console.WriteLine($"The minimum window substring is {output} which includes {searchingString}");
+        }
+
+        public static string FindMinimumWindowSubstringOriginal(string t, string s) // 27 lines
+        {
+
+            if (t == null || t.Length == 0 || s == null || s.Length == 0)
+            {
+                Console.WriteLine($"String <<stringWhereToSearch>> OR <<searchingString>> is not defined or its length = 0, cannot use this data");
+                return "";
+            }
+
+            // Map<Character, Integer> dictT = new HashMap<Character, Integer>();
+            Dictionary<char, int> dictT = new();
+
+            for (int i = 0; i < t.Length; i++)
+            {
+                int count = dictT.GetValueOrDefault(t[i], 0);
+                dictT[t[i]] = count + 1; //TryAdd?
+            }
+            DictIsVisual(dictT, "dictT");
+
+            int required = dictT.Count;
+
+            // Filter all the characters from s into a new list along with their index.
+            // The filtering criteria is that the character should be present in t.
+            // List<Pair<Integer, Character>> filteredS = new ArrayList<Pair<Integer, Character>>();
+            // this is not a dictionary!
+            List<KeyValuePair<int, char>> filteredS = new();
+
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s[i];
+                if (dictT.ContainsKey(c))
+                {
+                    filteredS.Add(new KeyValuePair<int, char>(i, c));
+                }
+            }
+            ListPairsIsVisual(filteredS, "filteredS");
+
+            int l = 0, r = 0, formed = 0;
+
+            // Map<Character, Integer> windowCounts = new HashMap<Character, Integer>();
+            Dictionary<char, int> windowCounts = new();
+
+            int[] ans = { -1, 0, 0 };
+
+            // Look for the characters only in the filtered list instead of entire s.
+            // This helps to reduce our search.
+            // Hence, we follow the sliding window approach on as small list.
+
+            while (r < filteredS.Count)
+            {
+                Console.WriteLine($"\n*** FIRST WHILE started *** r {r} must be < filteredS.Count {filteredS.Count}");
+
+                //KeyValuePair<int, char> v = filteredS[r];
+                //char c = filteredS.get(r).getValue();
+                //int count = windowCounts.getOrDefault(c, 0);
+                //windowCounts.put(c, count + 1);
+
+                char c = filteredS[r].Value;
+                int count = windowCounts.GetValueOrDefault(c, 0);
+                windowCounts.Add(c, count + 1);
+                Console.WriteLine($"windowCounts.Add(c, count + 1) {c} {count + 1}");
+                DictIsVisual(windowCounts, "windowCounts");
+                DictIsVisual(dictT, "dictT");
+
+                // if (dictT.ContainsKey(c) && windowCounts.get(c).intValue() == dictT.get(c).intValue())
+                Console.WriteLine($"if (c-{c} dictT.ContainsKey(c)-{dictT.ContainsKey(c)} && windowCounts[c]-{windowCounts[c]} == dictT[c]-{dictT[c]})  ==-{windowCounts[c] == dictT[c]}");
+                if (dictT.ContainsKey(c) && windowCounts[c] == dictT[c])
+                {
+                    formed++;
+                    Console.WriteLine($"formed++ - from {formed - 1} to {formed}");
+                }
+
+                // Try and contract the window till the point where it ceases to be 'desirable'.
+                // while (l <= r && formed == required)
+                while (l <= r && formed == required)
+                {
+                    Console.WriteLine($"*** SECOND WHILE started *** l{l} <= r-{r} && formed-{formed} == required-{required}");
+                    // c = filteredS.get(l).getValue();
+                    c = filteredS[l].Value;
+
+                    // Save the smallest window until now.
+                    int end = filteredS[r].Key;
+                    int start = filteredS[l].Key;
+                    if (ans[0] == -1 || end - start + 1 < ans[0])
+                    {
+                        ans[0] = end - start + 1;
+                        ans[1] = start;
+                        ans[2] = end;
+                    }
+
+                    windowCounts.Add(c, windowCounts[c] - 1);
+                    if (dictT.ContainsKey(c) && windowCounts[c] < dictT[c])
+                    {
+                        formed--;
+                    }
+                    l++;
+                }
+                r++;
+            }
+
+            return ans[0] == -1 ? "" : s.Substring(ans[1], ans[2] + 1);
         }
 
         // тут заполняем три словаря, source - полезными символами с количеством, а work и third - этими же символами с нулями
@@ -113,6 +217,18 @@ namespace PatternSlidingWindow
             }
 
             Console.WriteLine($"#                                                                                       state of dictionary {dictName} # is {dictString}");
+        }
+
+        public static void ListPairsIsVisual(List<KeyValuePair<int, char>> dict, string dictName)
+        {
+            StringBuilder dictString = new();
+
+            foreach (var ch in dict)
+            {
+                dictString.Append($"({ch.Key}/{ch.Value}) ");
+            }
+
+            Console.WriteLine($"#                                                                            state of list of KeyValuePairs {dictName} # is {dictString}");
         }
 
         public static string FindMinimumWindowSubstring(string stringWhereToSearch, string searchingString) // 27 lines
@@ -208,7 +324,6 @@ namespace PatternSlidingWindow
                         // обновляем словари за движением ЛЕВОЙ границы вперед - переливаем символ из рабочего в исходный, вычитаем из третьего, контролируем уровень счастья - его и возвращаем
                         isHappinessComplete = LeftFrameSideIsMoved(leftFrameSideChar);
 
-                        
                         // если запас полезных символов не истощился, то полное счастье продолжется и едет на следующий круг while
                         // если счастье закончилась, все равно надо выполнить эти же действия, только while больше не запустится
                         // двигаем восточную (левую) границу окна на запад
@@ -341,6 +456,45 @@ namespace PatternSlidingWindow
 
             return isHappinessComplete; ;
         }
+
+        //public void RR()
+        //{
+        //    while (r < filteredS.size())
+        //    {
+        //        char c = filteredS.get(r).getValue();
+        //        int count = windowCounts.getOrDefault(c, 0);
+        //        windowCounts.put(c, count + 1);
+
+        //        if (dictT.containsKey(c) && windowCounts.get(c).intValue() == dictT.get(c).intValue())
+        //        {
+        //            formed++;
+        //        }
+
+        //        // Try and contract the window till the point where it ceases to be 'desirable'.
+        //        while (l <= r && formed == required)
+        //        {
+        //            c = filteredS.get(l).getValue();
+
+        //            // Save the smallest window until now.
+        //            int end = filteredS.get(r).getKey();
+        //            int start = filteredS.get(l).getKey();
+        //            if (ans[0] == -1 || end - start + 1 < ans[0])
+        //            {
+        //                ans[0] = end - start + 1;
+        //                ans[1] = start;
+        //                ans[2] = end;
+        //            }
+
+        //            windowCounts.put(c, windowCounts.get(c) - 1);
+        //            if (dictT.containsKey(c) && windowCounts.get(c).intValue() < dictT.get(c).intValue())
+        //            {
+        //                formed--;
+        //            }
+        //            l++;
+        //        }
+        //        r++;
+        //    }
+        //}
 
     }
 }
