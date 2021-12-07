@@ -25,6 +25,7 @@ namespace PatternSlidingWindow.Tests
         public void FindSlidingWindowMaximumTest(int[] input, int k, int[] expectedOutput)
         {
             int[] foundOutput = SlidingWindowMaximum.FindSlidingWindowMaximum(input, k);
+            //int[] foundOutput = SlidingWindowMaximum.FindSlidingWindowMaximumOriginal(input, k);
 
             CollectionAssert.AreEqual(expectedOutput, foundOutput);
         }

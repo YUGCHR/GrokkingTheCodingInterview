@@ -36,9 +36,10 @@ namespace PatternSlidingWindow
             Console.WriteLine($"Sliding window size is {k}");
 
             //int[] output = FindSlidingWindowMaximum(input, k);
-            FindSlidingWindowMaximumOriginal(input, k);
+            int[] output = FindSlidingWindowMaximumOriginal(input, k);
 
-            //Console.WriteLine($"The sliding window maximums are {output}");
+            string outputToString = String.Join(", ", output);            
+            Console.WriteLine($"The sliding window maximums are [{outputToString}]");
         }
 
         // This method is based on finding three max elements and printing the first max from every subarray for every new element that enters and leaves the subarray.
@@ -48,23 +49,35 @@ namespace PatternSlidingWindow
         // : Update maxA, maxB, and maxC by every element that enters the window of length of k.
         // : if maxA matches the element that is being removed from the window replace maxA to maxB
         // : print maxA
-        public static void FindSlidingWindowMaximumOriginal(int[] input, int k) // 27 lines
+        public static int[] FindSlidingWindowMaximumOriginal(int[] input, int k)
+        // input string length = 54, steps count = 54 (any k)
         {
+            int stepCounter = 0;
             int i, maxA = int.MinValue, maxB = int.MinValue, maxC = int.MinValue;
             int n = input.Length;
+            int outputLength = n - k + 1; //наверное
+            int[] output = new int[outputLength];
+            int outIndex = 0;
+
             //base condition
             //if no subarrays needs to be formed
             if (k == 1 || k == n)
             {
+                int[] arr = new int[k];
                 for (i = 0; i < n; i++)
+                {
+                    arr[i] = input[i];
                     Console.Write($"{input[i]}, ");
-                return;
+                }
+                return arr;
             }
 
             //traverse k elements to find
             //find second and third largest elements
             for (i = 0; i < k; i++)
             {
+                stepCounter++;
+
                 if (maxA < input[i])
                 {
                     maxC = maxB;
@@ -77,13 +90,19 @@ namespace PatternSlidingWindow
                     maxB = input[i];
                 }
                 else if (maxC < input[i])
+                {
                     maxC = input[i];
+                }
             }
             Console.Write($"{maxA}, ");
+            output[outIndex] = maxA;
+            outIndex++;
 
             //traverse from remaining elements
             for (i = k; i < n; i++)
             {
+                stepCounter++;
+
                 //reset first second and third largest elements
                 //in response to new incoming elements
                 if (maxA < input[i])
@@ -110,7 +129,12 @@ namespace PatternSlidingWindow
                     maxB = maxC;
                 }
                 Console.Write($"{maxA}, ");
+                output[outIndex] = maxA;
+                outIndex++;
             }
+            Console.WriteLine($"\n input length = {n}, stepCounter = {stepCounter}");
+
+            return output;
         }
 
         // считываем положенное (К) количество символов из входного массива
@@ -123,7 +147,10 @@ namespace PatternSlidingWindow
 
         // тут ещё скользкий момент при удалении и, особенно, при добавлении элемента в список - добавляем в произвольном месте, перед элементом, который оказался меньше того, для которого ищется место
         // честнее было бы сделать метод настоящей просейки с переупорядочиванием массива, но, насколько я понимаю эту жизнь, тип List это делает с недоступным мне изяществом
-        public static int[] FindSlidingWindowMaximum(int[] input, int k) // __ lines
+        public static int[] FindSlidingWindowMaximum(int[] input, int k)
+        // input string length = 54, steps count = 107 (k = 2)
+        // input string length = 54, steps count = 135 (k = 3)
+        // input string length = 54, steps count = 194 (k = 5)
         {
             int stepCounter = 0;
             int inputLength = input.Length;
@@ -148,12 +175,14 @@ namespace PatternSlidingWindow
 
             for (int i = 0; i < inputLength; i++)
             {
+                stepCounter++;
                 bool isWritten = false;
                 int n = 0;
                 Console.WriteLine($"\n--- CYCLE loop {i} is started, isWritten = {isWritten}, n = {n}, leftFrameSide = {leftFrameSide}");
 
                 while (!isWritten && n < sortedIndices.Count)
                 {
+                    stepCounter++;
                     // проверяем все числа списка и если нашлось меньшее (точнее, если новое оказалось больше), вставляем новое перед найденным
                     // test all the numbers in the list and if found a smaller one (more precisely, if the new one turned out to be larger), insert a new one before the found one
                     int element = input[sortedIndices[n]];
