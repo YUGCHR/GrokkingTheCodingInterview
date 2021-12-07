@@ -75,6 +75,7 @@ namespace PatternSlidingWindow
             Console.WriteLine($"The minimum window substring is {output} which includes {searchingString}");
         }
 
+        // не работает!
         public static string FindMinimumWindowSubstringOriginal(string t, string s) // 27 lines
         {
 

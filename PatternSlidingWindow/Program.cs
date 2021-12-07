@@ -15,7 +15,9 @@ namespace PatternSlidingWindow
 
             //LongestSubstringWithDistinctCharacters.MainLongestDistinctSubstring();
 
-            MinimumWindowSubstring.MainMinimumWindowSubstring();
+            //MinimumWindowSubstring.MainMinimumWindowSubstring();
+
+            SlidingWindowMaximum.MainSlidingWindowMaximum();
 
 
         }
