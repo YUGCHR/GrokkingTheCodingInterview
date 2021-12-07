@@ -12,14 +12,9 @@ namespace PatternSlidingWindow
         {
             Console.WriteLine("Class - Sliding Window Maximum");
 
-            //int[] input = new int[] { 1, 3, -1, -3, 5, 3, 6, 7 };
-            // output 3, 3, 5, 5, 6, 7
-            int[] input = new int[] { 1, 9, 3, 1, 1, 1, 1, 1, 1, -1, -3, -3, -3, 9, 9, 9, 9, 9, -5, 3, -6, 7 };
+            int[] input = new int[] { 1, 2, 3, 1, 4, 5, 2, 3, 6 };
             int k = 3;
-            // output 9, 9, 3, 1, 1, 1, 1, 1, 1, -1, -3, 9, 9, 9, 9, 9, 9, 9, 3, 7
-            //int k = 5;
-            // output 9, 9, 3, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9
-
+            // output = 3, 3, 4, 5, 5, 5, 6
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -40,9 +35,82 @@ namespace PatternSlidingWindow
 
             Console.WriteLine($"Sliding window size is {k}");
 
-            int[] output = FindSlidingWindowMaximum(input, k);
+            //int[] output = FindSlidingWindowMaximum(input, k);
+            FindSlidingWindowMaximumOriginal(input, k);
 
-            Console.WriteLine($"The sliding window maximums are {output}");
+            //Console.WriteLine($"The sliding window maximums are {output}");
+        }
+
+        // This method is based on finding three max elements and printing the first max from every subarray for every new element that enters and leaves the subarray.
+        // 1. Run a loop from index 0 to k-1 to find the first, second, and third max (say maxA, maxB, and maxC)
+        // 2. Print maxA.
+        // 3. Run a loop from k to n-1
+        // : Update maxA, maxB, and maxC by every element that enters the window of length of k.
+        // : if maxA matches the element that is being removed from the window replace maxA to maxB
+        // : print maxA
+        public static void FindSlidingWindowMaximumOriginal(int[] input, int k) // 27 lines
+        {
+            int i, maxA = int.MinValue, maxB = int.MinValue, maxC = int.MinValue;
+            int n = input.Length;
+            //base condition
+            //if no subarrays needs to be formed
+            if (k == 1 || k == n)
+            {
+                for (i = 0; i < n; i++)
+                    Console.Write($"{input[i]}, ");
+                return;
+            }
+
+            //traverse k elements to find
+            //find second and third largest elements
+            for (i = 0; i < k; i++)
+            {
+                if (maxA < input[i])
+                {
+                    maxC = maxB;
+                    maxB = maxA;
+                    maxA = input[i];
+                }
+                else if (maxB < input[i])
+                {
+                    maxC = maxB;
+                    maxB = input[i];
+                }
+                else if (maxC < input[i])
+                    maxC = input[i];
+            }
+            Console.Write($"{maxA}, ");
+
+            //traverse from remaining elements
+            for (i = k; i < n; i++)
+            {
+                //reset first second and third largest elements
+                //in response to new incoming elements
+                if (maxA < input[i])
+                {
+                    maxC = maxB;
+                    maxB = maxA;
+                    maxA = input[i];
+                }
+                else if (maxB < input[i])
+                {
+                    maxC = maxB;
+                    maxB = input[i];
+                }
+                else if (maxC < input[i])
+                    maxC = input[i];
+
+                //if the first biggest we earlier found
+                //is matching from the element that
+                //needs to be removed from the subarray
+                if (input[i - k] == maxA)
+                {
+                    //reset first biggest to second and second to third
+                    maxA = maxB;
+                    maxB = maxC;
+                }
+                Console.Write($"{maxA}, ");
+            }
         }
 
         // считываем положенное (К) количество символов из входного массива
@@ -55,7 +123,7 @@ namespace PatternSlidingWindow
 
         // тут ещё скользкий момент при удалении и, особенно, при добавлении элемента в список - добавляем в произвольном месте, перед элементом, который оказался меньше того, для которого ищется место
         // честнее было бы сделать метод настоящей просейки с переупорядочиванием массива, но, насколько я понимаю эту жизнь, тип List это делает с недоступным мне изяществом
-        public static int[] FindSlidingWindowMaximum(int[] input, int k) // 27 lines
+        public static int[] FindSlidingWindowMaximum(int[] input, int k) // __ lines
         {
             int stepCounter = 0;
             int inputLength = input.Length;
@@ -67,7 +135,7 @@ namespace PatternSlidingWindow
 
             List<int> sortedIndices = new();
             //sortedIndices.Add(0);
-                                         
+
             // first K steps has completed
             bool firstKStepsHasCompleted = false;
 
@@ -110,7 +178,7 @@ namespace PatternSlidingWindow
                     sortedIndices.Add(i);
 
                 }
-                
+
                 // calculate the length of the window at the end of each cycle
                 int windowSize = i - leftFrameSide;
                 Console.WriteLine($"calculate the length of the window - windowSize={windowSize} = i={i} - leftFrameSide={leftFrameSide} + 1");
@@ -120,7 +188,7 @@ namespace PatternSlidingWindow
 
                 // if the window size has reached the specified K
                 // it makes sense only for the first K steps, so then this condition can be disabled
-                if (firstKStepsHasCompleted || windowSize == k-1)
+                if (firstKStepsHasCompleted || windowSize == k - 1)
                 {
                     // take the maximum from the current position of the sliding window - this is the zero item in the list
                     output[outIndex] = input[sortedIndices[0]];
@@ -136,7 +204,7 @@ namespace PatternSlidingWindow
                     // нет! int index = sortedIndices[leftFrameSide]; ключевой момент - надо найти в списке элемент со значением leftFrameSide
                     // find an element in the list with the value leftFrameSide
 
-                    string sortedIndicesRemovedToString = String.Join(", ", sortedIndices);                    
+                    string sortedIndicesRemovedToString = String.Join(", ", sortedIndices);
                     Console.WriteLine($"WILL try to remove = {leftFrameSide} from = {sortedIndicesRemovedToString} with length = {sortedIndices.Count} and k = {k}");
 
                     bool wasRemoved = sortedIndices.Remove(leftFrameSide);
