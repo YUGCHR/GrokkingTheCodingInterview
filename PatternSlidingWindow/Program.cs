@@ -17,8 +17,9 @@ namespace PatternSlidingWindow
 
             //MinimumWindowSubstring.MainMinimumWindowSubstring();
 
-            SlidingWindowMaximum.MainSlidingWindowMaximum();
+            //SlidingWindowMaximum.MainSlidingWindowMaximum();
 
+            MaximumNumberOfVisiblePoints.MainMaximumNumberOfVisiblePoints();
 
         }
     }
