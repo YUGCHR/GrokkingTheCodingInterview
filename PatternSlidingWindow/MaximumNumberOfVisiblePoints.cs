@@ -17,26 +17,26 @@ namespace PatternSlidingWindow
     public static class MaximumNumberOfVisiblePoints
     {
         public static int stepCounter = 0;
-        public static List<double> polarAngles = new();
+        public static List<double> polarAngles;
 
         public static void MainMaximumNumberOfVisiblePoints()
         {
             Console.WriteLine("Class - Sliding Window Maximum");
 
-            int[,] input = new int[,] { { 1, 2 }, { 2, 2 }, { 2, 3 }, { 200, 5 }, { 300, 6 }, { 10000, 7 }, { 21, 22 }, { 2, 25 }, { 3, 28 }, { -10, 90 }, { -50, 30 }, { -30, -80 } };
-            int[,] location = new int[,] { { 1, 2 } };
-            int angle = 180;
-            int expectedOutput = 11;
+            //int[,] input = new int[,] { { 1, 2 }, { 2, 2 }, { 2, 3 }, { 200, 5 }, { 300, 6 }, { 10000, 7 }, { 21, 22 }, { 2, 25 }, { 3, 28 }, { -10, 90 }, { -50, 30 }, { -30, -80 } };
+            //int[,] location = new int[,] { { 1, 2 } };
+            //int angle = 180;
+            //int expectedOutput = 11;
 
             //int[,] input = new int[,] { { 2, 1 }, { 2, 2 }, { 3, 3 } };
             //int[,] location = new int[,] { { 1, 1 } };
             //int angle = 90;
             //int expectedOutput = 3;
 
-            //int[,] input = new int[,] { { 2, 1 }, { 2, 2 }, { 3, 4 }, { 1, 1 } };
-            //int[,] location = new int[,] { { 1, 1 } };
-            //int angle = 90;
-            //int expectedOutput = 4;
+            int[,] input = new int[,] { { 2, 1 }, { 2, 2 }, { 3, 4 }, { 1, 1 } };
+            int[,] location = new int[,] { { 1, 1 } };
+            int angle = 90;
+            int expectedOutput = 4;
 
             //int[,] input = new int[,] { { 1, 0 }, { 2, 1 } };
             //int[,] location = new int[,] { { 1, 1 } };
@@ -82,6 +82,8 @@ namespace PatternSlidingWindow
 
         public static int FindMaximumNumberOfVisiblePoints(int[,] input, int[,] location, int angle)
         {
+            polarAngles = new();
+
             int output = 0;
 
             int length0 = input.GetLength(0);
