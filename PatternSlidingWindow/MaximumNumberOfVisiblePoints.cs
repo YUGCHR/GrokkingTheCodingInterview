@@ -25,8 +25,23 @@ namespace PatternSlidingWindow
 
             int[,] input = new int[,] { { 1, 2 }, { 2, 2 }, { 2, 3 }, { 200, 5 }, { 300, 6 }, { 10000, 7 }, { 21, 22 }, { 2, 25 }, { 3, 28 }, { -10, 90 }, { -50, 30 }, { -30, -80 } };
             int[,] location = new int[,] { { 1, 2 } };
-            int angle = 30;
-            int expectedOutput = 2;
+            int angle = 180;
+            int expectedOutput = 11;
+
+            //int[,] input = new int[,] { { 2, 1 }, { 2, 2 }, { 3, 3 } };
+            //int[,] location = new int[,] { { 1, 1 } };
+            //int angle = 90;
+            //int expectedOutput = 3;
+
+            //int[,] input = new int[,] { { 2, 1 }, { 2, 2 }, { 3, 4 }, { 1, 1 } };
+            //int[,] location = new int[,] { { 1, 1 } };
+            //int angle = 90;
+            //int expectedOutput = 4;
+
+            //int[,] input = new int[,] { { 1, 0 }, { 2, 1 } };
+            //int[,] location = new int[,] { { 1, 1 } };
+            //int angle = 13;
+            //int expectedOutput = 1;
 
             int length0 = input.GetLength(0);
             int length1 = input.GetLength(1);
@@ -39,17 +54,7 @@ namespace PatternSlidingWindow
                 Console.Write($"[{input[i, 0]}, {input[i, 1]}], ");
             }
             Console.Write("\n");
-
-            //Console.Write($"Dimension 0 indices  ");
-            //for (int i = 0; i < length0; i++)
-            //{
-            //    string blank0 = "        ";
-            //    if (input[i, 0] < 0 || input[i, 1] < 0)
-            //    {
-            //        blank0 = "         ";
-            //    }
-            //    Console.Write($"{i},{blank0}");
-            //}
+            
             Console.WriteLine("\n-------------------------------------------------------------------------------------------------------------------------");
 
             Console.WriteLine($"Started point = [{location[0, 0]}, {location[0, 1]}], angle = {angle}");
@@ -113,84 +118,60 @@ namespace PatternSlidingWindow
 
             VisualList(polarAngles, false);
 
-            // теперь возьмем первый угол за опорный и прибавим поле зрения
-            // посмотрим, сколько следущих углов меньше этой суммы
-            // сохраним список этих точек в список скользящего окна
-            // запомним число в максимальное значение
-            // зачем выбросим первую точку
-            // возьмем первую из оставшегося списка скользящего окна
-            // прибавим к ней поле зрения
-            // возьмем следующий угол из сортированного списка и проверим, меньше она текущей суммы или нет
-            // если меньше, добавляем ее в список окна и идем за следующим углом
-            // если не меньше - больше, то надо вычесть первую точку из окна
-            // ----------------------------------------------------------------
-
-            // можно сохранять не тяжелые значения, а легкие индексы
+            // еще можно сохранять не тяжелые значения, а легкие индексы
             List<double> slidingFrame = new();
 
-            double startFrame = polarAngles[0] + angle;
-            bool isFrameFull = false;
-            int n = 0;
-
-            while (!isFrameFull)
-            {
-                stepCounter++;
-                if (startFrame < polarAngles[n])
-                {
-                    isFrameFull = true;
-                }
-                else
-                {
-                    slidingFrame.Add(polarAngles[n]);
-                }
-                n++;
-            }
-
-            VisualList(slidingFrame, false);
-
-            // сформировали список скользящего окна, теперь двигаемся по нему
-            // в начале цикла уже известно, что следующий угол не помещается, поэтому можно сразу начинать с удаления первого из окна
-            int leftFrameSide = 0;
-
+            //int leftFrameSide = 0;
+            double rightFrameSide = polarAngles[0] + angle;
 
             // так нельзя делать
             // список окна истощается и теряется - такой вариант возможен
             // надо формировать и двигать окно в едином цикле
 
-
-            for (int i = slidingFrame.Count; i < polarAngles.Count; i++)
+            for (int i = 0; i < polarAngles.Count; i++)
             {
                 stepCounter++;
+                Console.WriteLine($"\n ++++++++ CYCLE FOR started with i = {i}, rightFrameSide = {rightFrameSide}, stepCounter = {stepCounter}");
 
-                Console.WriteLine($"\n ++++++++ CYCLE FOR started with i = {i}, leftFrameSide = {leftFrameSide}");
+                // добавляем текущий угол в скользящее окно
+                slidingFrame.Add(polarAngles[i]);
                 VisualList(slidingFrame, false);
-                // удаляем левое значение
-                slidingFrame.RemoveAt(leftFrameSide);
 
-                // добавляем угол к новому левому значению
-                double leftFrameSideAngle = slidingFrame[0] + angle;
-
-                // проверяем следующий после правого края окна угол, попадает ли он теперь в окно
-                // правый край окна - это i-1
-
-                // это следущий после окна
-                int m = i;
-                // сравниваем с текущим полем зрения
-                while (m < polarAngles.Count && polarAngles[m] < leftFrameSideAngle)
+                // если текущий угол больше, чем передний (бывший правый) луч угла обзора,
+                // надо посчитать количество углов (вычесть один, как лишний спереди - он уже не попадает),
+                // потом удалить самый ранний (бывший левый)
+                // обновить переднюю границу угла обзора и идти на следующий круг
+                if (polarAngles[i] > rightFrameSide)
                 {
-                    stepCounter++;
-                    // если меньше, то добавили и идем за следующим углом в следующем цикле
-                    // нет, надо достать следующий угол в этом цикле - добавить while
-                    slidingFrame.Add(polarAngles[m]);
-                    m++;
+                    if (output < slidingFrame.Count - 1)
+                    {
+                        output = slidingFrame.Count - 1;
+                        Console.WriteLine($"\n ****************** New minimum was found = {output}");
+
+                    }
+
+                    // самый ранний угол удаляем в цикле - пока последний угол в скользящем окне не поместится в угол обзора или окно не схлопнется до нуля
+                    // меня мазать первым! - сначала проверяем, что есть где проверять (откуда удалять)
+                    while (polarAngles[i] > rightFrameSide)
+                    {
+                        stepCounter++;
+
+                        VisualList(slidingFrame, false);
+                        // удаляем левое значение
+                        // но нельзя удалять последнее значение - оно не наше (формально не входит в окно) - и к нему надо будет прицепиться, когда все окно схлопнется
+                        if (slidingFrame.Count > 1)
+                        {
+                            slidingFrame.RemoveAt(0);
+                            VisualList(slidingFrame, false);
+                        }
+
+                        // добавляем угол обзора к новому левому значению
+                        // тут уже может не быть нового значения, принадлежащего окну - когда останется одно значение (оно за передним краем окна), оно станет началом нового окна
+                        rightFrameSide = slidingFrame[0] + angle;
+                        Console.WriteLine($"\n END FOR --- New rightFrameSide={rightFrameSide} = slidingFrame[0]={slidingFrame[0]} + angle={angle}");
+
+                    }
                 }
-                // если следующий угол больше, то идем на новый цикл удалять левый угол из окна
-                // в этот момент надо измерить длину окна и сравнить с максимальной
-                if (output < slidingFrame.Count)
-                {
-                    output = slidingFrame.Count;
-                }
-                leftFrameSide++;
             }
 
             Console.WriteLine($"\n The maximum number of points = {output}, stepCounter = {stepCounter}");
