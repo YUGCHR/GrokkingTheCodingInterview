@@ -21,6 +21,8 @@ namespace PatternSlidingWindow
 
             MaximumNumberOfVisiblePoints.MainMaximumNumberOfVisiblePoints();
 
+            //DistinctEchoSubstrings.MainDistinctEchoSubstrings();
+
         }
     }
 }

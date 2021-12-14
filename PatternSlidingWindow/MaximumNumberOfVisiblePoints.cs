@@ -21,7 +21,7 @@ namespace PatternSlidingWindow
 
         public static void MainMaximumNumberOfVisiblePoints()
         {
-            Console.WriteLine("Class - Sliding Window Maximum");
+            Console.WriteLine("Class - Maximum Number of Visible Points");
 
             //int[,] input = new int[,] { { 1, 2 }, { 2, 2 }, { 2, 3 }, { 200, 5 }, { 300, 6 }, { 10000, 7 }, { 21, 22 }, { 2, 25 }, { 3, 28 }, { -10, 90 }, { -50, 30 }, { -30, -80 } };
             //int[,] location = new int[,] { { 1, 2 } };
@@ -34,7 +34,8 @@ namespace PatternSlidingWindow
             //int expectedOutput = 3;
 
             int[,] input = new int[,] { { 2, 1 }, { 2, 2 }, { 3, 4 }, { 1, 1 } };
-            int[,] location = new int[,] { { 1, 1 } };
+            int[] location = new int[] { 1, 1 };
+            //int[,] location = new int[,] { { 1, 1 } };
             int angle = 90;
             int expectedOutput = 4;
 
@@ -54,12 +55,14 @@ namespace PatternSlidingWindow
                 Console.Write($"[{input[i, 0]}, {input[i, 1]}], ");
             }
             Console.Write("\n");
-            
+
             Console.WriteLine("\n-------------------------------------------------------------------------------------------------------------------------");
 
-            Console.WriteLine($"Started point = [{location[0, 0]}, {location[0, 1]}], angle = {angle}");
+            Console.WriteLine($"Started point = [{location[0]}, {location[1]}], angle = {angle}");
+            //Console.WriteLine($"Started point = [{location[0, 0]}, {location[0, 1]}], angle = {angle}");
 
-            int output = FindMaximumNumberOfVisiblePoints(input, location, angle);
+            int output = FindMaximumNumberOfVisiblePointsOptimal(input, location, angle);
+            //int output = FindMaximumNumberOfVisiblePoints(input, location, angle);
 
             //string outputToString = String.Join(", ", output);
             Console.WriteLine($"The maximum number of points you can see is {output} and expected value is {expectedOutput}");
@@ -78,6 +81,79 @@ namespace PatternSlidingWindow
                 list2printToString = String.Join(", ", list2print);
             }
             Console.WriteLine($"\n polarAngles = {list2printToString}");
+        }
+
+        public static int FindMaximumNumberOfVisiblePointsOptimal(int[,] points, int[] location, int targetAngle)
+        {
+            int n = points.GetLength(0);
+            if (n == 0)
+            {
+                return 0;
+            }
+
+            int i, j, sameAsBase = 0, dx, dy;
+            double angle;
+
+            List<double> angles = new(n); //(n << 1);
+
+            for (i = 0; i < n; i++)
+            {
+                dx = points[i, 0] - location[0];
+                dy = points[i, 1] - location[1];
+                if (dx == 0 && dy == 0)
+                {
+                    ++sameAsBase;
+                }
+                else
+                {
+                    angle = Math.Atan2(dy, dx) * 180.0 / Math.PI;
+                    angles.Add(angle);
+                }
+            }
+
+            int result = sameAsBase;
+
+            if (angles.Any())
+            {
+                angles.Sort();
+                n = angles.Count;
+                for (i = 0; i < n; i++)
+                {
+                    angles.Add(angles[i] + 360.0); // for cyclic looping
+                }
+
+                n = (n << 1);
+
+                for (i = 0; i + result < n; i++)
+                {
+                    j = BinarySearch(angles, i, n, angles[i] + targetAngle);
+                    result = Math.Max(result, sameAsBase + j - i + 1);
+                }
+            }
+
+            return result;
+        }
+
+        private static int BinarySearch(List<Double> angles, int start, int length, double target)
+        {
+            int left = start, right = length - 1;
+            int mid;
+            int result = -1;
+            while (left <= right)
+            {
+                //mid = left + ((right - left) >> 1);
+                mid = left + ((right - left) / 2);
+                if (angles[mid] <= target)
+                {
+                    result = mid;
+                    left = mid + 1;
+                }
+                else
+                {
+                    right = mid - 1;
+                }
+            }
+            return result;
         }
 
         public static int FindMaximumNumberOfVisiblePoints(int[,] input, int[,] location, int angle)
