@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// Distinct Echo Substrings
+// 1316. Distinct Echo Substrings
 // Return the number of distinct non-empty substrings of text that can be written as the concatenation of some string with itself
 // (i.e. it can be written as a + a where a is some string).
 
@@ -29,6 +29,27 @@ namespace PatternSlidingWindow
 
             //string outputToString = String.Join(", ", output);
             Console.WriteLine($"The number of distinct non-empty substrings is {output} and expected value is {expectedOutput}");
+        }
+
+        public static int Original()
+        {
+            // Complexity: Time O(n^3), Space O(h)
+            //func distinctEchoSubstrings(text string) int {
+            //m:= map[string]bool{ }
+            //    for i:= 0; i < len(text); i++ {
+            //        for j:= i + 1; j < len(text); j++ {
+            //            // text[i...j]
+            //            if (j - i + 1)% 2 == 1 {
+            //                continue
+            //                 }
+            //        mid:= (i + j) / 2
+            //            if text[i: mid + 1] == text[mid + 1:j + 1] {
+            //                m[text[i: j]] = true
+            //}
+            //        }
+            //    }
+            //    return len(m)
+            //}
         }
 
         public static int FindDistinctEchoSubstrings(string input)

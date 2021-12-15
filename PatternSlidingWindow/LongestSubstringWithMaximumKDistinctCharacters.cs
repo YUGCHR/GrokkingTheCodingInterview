@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// 340 Longest Substring with At Most K Distinct Characters (46.8% Medium locked)
+// Given a string, find the length of the longest substring in it with no more than K distinct characters.
+
 namespace PatternSlidingWindow
 {
     public static class LongestSubstringWithMaximumKDistinctCharacters

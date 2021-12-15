@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// 3. Longest Substring Without Repeating Characters
+// Given a string s, find the length of the longest substring without repeating characters.
+
 namespace PatternSlidingWindow
 {
     public class LongestSubstringWithDistinctCharacters
