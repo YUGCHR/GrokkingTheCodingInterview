@@ -31,26 +31,26 @@ namespace PatternSlidingWindow
             Console.WriteLine($"The number of distinct non-empty substrings is {output} and expected value is {expectedOutput}");
         }
 
-        public static int Original()
-        {
-            // Complexity: Time O(n^3), Space O(h)
-            //func distinctEchoSubstrings(text string) int {
-            //m:= map[string]bool{ }
-            //    for i:= 0; i < len(text); i++ {
-            //        for j:= i + 1; j < len(text); j++ {
-            //            // text[i...j]
-            //            if (j - i + 1)% 2 == 1 {
-            //                continue
-            //                 }
-            //        mid:= (i + j) / 2
-            //            if text[i: mid + 1] == text[mid + 1:j + 1] {
-            //                m[text[i: j]] = true
-            //}
-            //        }
-            //    }
-            //    return len(m)
-            //}
-        }
+        //public static int Original()
+        //{
+        //    // Complexity: Time O(n^3), Space O(h)
+        //    //func distinctEchoSubstrings(text string) int {
+        //    //m:= map[string]bool{ }
+        //    //    for i:= 0; i < len(text); i++ {
+        //    //        for j:= i + 1; j < len(text); j++ {
+        //    //            // text[i...j]
+        //    //            if (j - i + 1)% 2 == 1 {
+        //    //                continue
+        //    //                 }
+        //    //        mid:= (i + j) / 2
+        //    //            if text[i: mid + 1] == text[mid + 1:j + 1] {
+        //    //                m[text[i: j]] = true
+        //    //}
+        //    //        }
+        //    //    }
+        //    //    return len(m)
+        //    //}
+        //}
 
         public static int FindDistinctEchoSubstrings(string input)
         {
